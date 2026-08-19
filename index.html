@@ -1,1 +1,56 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>BondetTrades.com - PRO BOT</title><style>*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}body{background:#0a0a0a;color:#fff}.h{background:#000;padding:16px;border-bottom:2px solid #FFD700;display:flex;justify-content:space-between;align-items:center}.logo{color:#FFD700;font-size:20px;font-weight:bold}.live{background:#00ff88;color:#000;padding:6px 14px;border-radius:20px;font-weight:bold;font-size:12px;animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}.c{background:#141414;border:1px solid #262626;border-radius:16px;padding:14px;margin:10px}.b{background:linear-gradient(90deg,#FFD700,#ffae00);color:#000;padding:14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:18px;cursor:pointer}.b.on{background:linear-gradient(90deg,#00ff88,#00cc6a)}.bal{font-size:30px;color:#FFD700;font-weight:900}.pr{font-size:20px;color:#00ff88;font-weight:bold}canvas{width:100%;height:200px;background:#000;border-radius:12px;border:1px solid #222;margin-top:10px}input{width:48%;padding:12px;background:#000;border:1px solid #333;color:#FFD700;border-radius:10px;text-align:center;font-weight:bold}button{padding:16px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer}.call{background:#00ff88;color:#000;width:48%}.put{background:#1a1a1a;border:1px solid #ff4444;color:#ff4444;width:48%}.lg{background:#000;border:1px solid #222;border-radius:10px;padding:10px;height:130px;overflow-y:auto;font-size:12px;color:#00ff88}</style></head><body><div class="h"><div class="logo">BondetTrades.com</div><div class="live">● LIVE PRO</div></div><div class="c"><div class="b" id="botBtn" onclick="toggle()"><span id="bt">BOT: OFF</span><span id="bs">START ▶</span></div></div><div class="c"><div style="display:flex;justify-content:space-between"><div><div style="color:#888;font-size:11px">BALANCE</div><div class="bal" id="bal">$1000.00</div></div><div style="text-align:right"><div style="color:#888;font-size:11px">PROFIT</div><div class="pr" id="pr">+$0.00</div></div></div><canvas id="ch"></canvas><div style="text-align:center;margin:8px">V100: <b id="px" style="color:#FFD700;font-size:22px">6541.18</b></div><div style="display:flex;gap:8px;justify-content:space-between"><input id="st" type="number" value="1"><input id="mt" type="number" value="2.1"></div></div><div class="c" style="display:flex;gap:10px"><button class="call" onclick="td('CALL')">CALL ↑</button><button class="put" onclick="td('PUT')">PUT ↓</button></div><div class="c"><b style="color:#FFD700">TRADE LOG</b><div class="lg" id="lg">Ready... Gold Pro Bot Loaded<br></div></div><script>let bal=1000,pf=0,pr=6541.18,arr=[],bot=false,sk=1,ctx=document.getElementById('ch').getContext('2d');for(let i=0;i<70;i++)arr.push(6540+Math.random()*20-10);function dw(){let c=document.getElementById('ch');c.width=c.offsetWidth*2;c.height=400;ctx.clearRect(0,0,c.width,c.height);ctx.beginPath();ctx.strokeStyle='#FFD700';ctx.lineWidth=3;let mn=Math.min(...arr),mx=Math.max(...arr);arr.forEach((v,i)=>{let x=(i/arr.length)*c.width,y=c.height-((v-mn)/(mx-mn+0.1))*c.height*0.7-c.height*0.15;if(i==0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke()}function up(){pr+=(Math.random()-.48)*1.8;if(arr.length>70)arr.shift();arr.push(pr);document.getElementById('px').innerText=pr.toFixed(2);dw();if(bot&&Math.random()>0.65)au()}function lgm(m,ty=''){let l=document.getElementById('lg');let col=ty=='w'?'#00ff88':ty=='l'?'#ff4444':'#aaa';l.innerHTML+=`<div style="color:${col}">[${new Date().toLocaleTimeString()}] ${m}</div>`;l.scrollTop=l.scrollHeight}function toggle(){bot=!bot;let b=document.getElementById('botBtn');b.classList.toggle('on',bot);document.getElementById('bt').innerText=bot?'BOT: ON TRADING':'BOT: OFF';document.getElementById('bs').innerText=bot?'STOP ■':'START ▶';lgm(bot?'GOLD BOT STARTED!':'BOT STOPPED')}function au(){let t=arr[69]>arr[60]?'CALL':'PUT';td(t)}function td(d){let s=parseFloat(document.getElementById('st').value)||1;let e=pr;lgm(`${d} $${s} @ ${e.toFixed(2)}`);setTimeout(()=>{let ex=pr;let win=(d=='CALL'&&ex>e)||(d=='PUT'&&ex<e);if(win){let p=s*0.93;bal+=p;pf+=p;lgm(`WIN +$${p.toFixed(2)} BAL $${bal.toFixed(2)}`,'w')}else{let m=parseFloat(document.getElementById('mt').value)||2.1;bal-=s;pf-=s;lgm(`LOSS -$${s.toFixed(2)} BAL $${bal.toFixed(2)}`,'l')}document.getElementById('bal').innerText='$'+bal.toFixed(2);document.getElementById('pr').innerText=(pf>=0?'+$':'-$')+Math.abs(pf).toFixed(2)},2200)}setInterval(up,350);dw();</script></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BondetTrades Gold Pro</title>
+<style>
+body{background:#000;color:#FFD700;text-align:center;font-family:Arial;margin:0;padding:0}
+.top{background:gold;color:#000;padding:20px;font-weight:bold;font-size:24px}
+.box{border:2px solid gold;margin:12px;border-radius:12px;padding:10px;background:#111}
+button{background:gold;color:#000;padding:14px 28px;border:none;border-radius:8px;font-weight:bold;margin:8px;font-size:16px}
+#s{font-weight:bold}
+</style>
+</head>
+<body>
+<div class="top">BONDETTRADES.COM - GOLD BOT</div>
+
+<div class="box">
+<h3>🤖 BOT: <span id="s" style="color:lime">READY</span></h3>
+<p>Gold Pro Auto-Trader</p>
+<button onclick="document.getElementById('s').innerText='RUNNING 🟢';alert('Bot Started Trading Gold!')">START BOT</button>
+<button onclick="document.getElementById('s').innerText='STOPPED 🔴'">STOP BOT</button>
+</div>
+
+<div class="box">
+<h3>📈 LIVE GOLD CHART - XAUUSD</h3>
+<div id="chart1" style="height:450px"></div>
+<script src="https://s.tradingview.com/tv.js"></script>
+<script>
+new TradingView.widget({
+"container_id":"chart1",
+"symbol":"OANDA:XAUUSD",
+"interval":"1",
+"theme":"dark",
+"style":"1",
+"autosize":true
+});
+</script>
+</div>
+
+<div class="box">
+<h3>📊 VOLATILITY 75</h3>
+<div id="chart2" style="height:400px"></div>
+<script>
+new TradingView.widget({
+"container_id":"chart2",
+"symbol":"TVC:DXY",
+"interval":"5",
+"theme":"dark",
+"autosize":true
+});
+</script>
+</div>
+
+</body>
+</html>
