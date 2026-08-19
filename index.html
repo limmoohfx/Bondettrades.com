@@ -1,1 +1,24 @@
-github.com/limmoohfx/Bondettrades.com/edit/main/index.html
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BondetTrades - Dollar Printer</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f2f3f7;padding-bottom:70px}
+.top{background:#fff;padding:10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ddd}
+.dep{background:#2db25e;color:#fff;padding:8px 16px;border-radius:20px;border:none;font-weight:bold}
+.bal{border:1px solid #ddd;padding:6px 12px;border-radius:20px;font-size:13px}
+.nav{background:#0e0e0e;color:#fff;display:flex;gap:15px;padding:10px;font-size:12px;overflow:auto}
+.nav .active{background:#fff;color:#000;padding:5px 10px;border-radius:6px;font-weight:bold}
+.main{display:flex}.left{width:50px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;align-items:center;gap:18px;padding:15px 0}
+.center{flex:1;padding:10px}.card{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.card h4{background:#2a3052;color:#fff;padding:6px 10px;border-radius:6px;font-size:13px;display:inline-block;margin-bottom:8px}
+.row{margin:8px 0;font-size:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill{border:1px solid #ddd;padding:4px 8px;border-radius:15px;background:#fff;font-size:11px}
+.inp{border:1px solid #ccc;padding:8px;border-radius:6px;width:100px;font-size:13px}.inp-token{width:260px;border:1px solid #ff444f}
+.run-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;padding:10px;display:flex;justify-content:space-between;align-items:center;z-index:99}
+.run{background:#2db25e;color:#fff;border:none;padding:10px 25px;border-radius:6px;font-weight:bold}
+.stop{background:#ff444f;color:#fff;border:none;padding:10px 25px;border-radius:6px;font-weight:bold}
+.log{background:#000;color:#0f0;padding:10px;height:160px;overflow:auto;font-size:11px;border-radius:6px;font-family:monospace}
+</style></head><body>
+<div class="top"><b style="color:#ff444f">BONDETTRADES.COM</b><div><button class="dep">deposit/withdraw</button> <span class="bal" id="balance">Balance: --</span></div></div>
+<div class="nav"><span>Dashboard</span><span class="active">Bot Builder</span><span>D Trader</span><span>Tutorials</
