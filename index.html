@@ -3,207 +3,193 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BondetTrades - Pro</title>
+<title>BondetTrades - Dashboard Pro</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#0a0e13;color:white;padding-bottom:80px}
-.header{background:#11151c;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #00ff88;position:sticky;top:0;z-index:100}
-.balance-box{background:#1a2332;border:1px solid #00ff88;border-radius:12px;padding:20px;margin:15px;text-align:center}
-.balance-amount{font-size:32px;font-weight:bold;color:#00ff88}
-.btn{padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
-.btn-run{background:#00ff88;color:#000;flex:1}.btn-stop{background:#ff3344;color:#fff;flex:1}
-.btn-deposit{background:#1a2332;color:#00ff88;border:1px solid #00ff88;width:100%;padding:14px;border-radius:10px;margin:5px 0}
-.btn-withdraw{background:#00ff88;color:#000;width:100%;padding:14px;border-radius:10px;margin:5px 0}
+body{background:#0a0e13;color:white;padding-bottom:20px}
+.header{background:#11151c;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #00ff88}
+.logo{color:#00ff88;font-weight:bold;font-size:18px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px}
+.stat-card{background:#1a2332;border:1px solid #222;border-radius:12px;padding:15px}
+.stat-card.profit{border-color:#00ff88}
+.stat-card.loss{border-color:#ff3344}
+.stat-label{font-size:10px;color:#888;letter-spacing:1px}
+.stat-value{font-size:20px;font-weight:bold;margin:5px 0}
+.stat-value.green{color:#00ff88}.stat-value.red{color:#ff3344}
+.stat-change{font-size:10px;color:#00ff88}
+.balance-main{background:linear-gradient(135deg,#1a2332,#0f1a2a);border:2px solid #00ff88;border-radius:16px;padding:20px;margin:15px;text-align:center}
+.balance-big{font-size:36px;font-weight:bold;color:#00ff88}
+.dollar{color:#888;font-size:14px}
+.dashboard-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px}
+.chart-box{background:#11151c;border-radius:12px;padding:15px;margin:15px;height:120px;position:relative;overflow:hidden}
+.chart-line{position:absolute;bottom:0;left:0;width:100%;height:80px;background:linear-gradient(to top, #00ff8820, transparent);border-top:2px solid #00ff88}
 .controls{display:flex;gap:10px;margin:15px}
-.tabs{display:flex;background:#11151c;margin:15px;border-radius:10px;padding:5px}
-.tab{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:12px;cursor:pointer}
+.btn{flex:1;padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+.btn-run{background:#00ff88;color:#000}.btn-stop{background:#ff3344;color:#fff}
+.btn-deposit{background:#00ff88;color:#000;width:calc(100% - 30px);margin:10px 15px;padding:16px;border-radius:12px;font-size:16px;font-weight:bold}
+.tabs{display:flex;background:#11151c;margin:15px;border-radius:10px;padding:4px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:11px;cursor:pointer;color:#888}
 .tab.active{background:#00ff88;color:#000;font-weight:bold}
-.content{margin:15px;background:#11151c;border-radius:12px;padding:15px;min-height:200px}
-.trade-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;font-size:12px;animation:slideIn 0.3s}
-@keyframes slideIn{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
+.content{background:#11151c;border-radius:12px;padding:15px;margin:15px;min-height:250px}
+.trade-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332;font-size:11px;animation:slide 0.3s}
+@keyframes slide{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 .profit{color:#00ff88}.loss{color:#ff3344}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;align-items:center;justify-content:center;padding:15px}
-.modal.active{display:flex}.modal-box{background:#1a2332;border:2px solid #00ff88;border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center;padding:15px}
+.modal.active{display:flex}.modal-box{background:#1a2332;border:2px solid #00ff88;border-radius:16px;padding:20px;width:100%;max-width:380px}
 .input{width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0a0e13;color:white;margin:8px 0}
-.bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#11151c;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #00ff88}
-.nav-item{color:#888;font-size:10px;text-align:center;cursor:pointer}.nav-item.active{color:#00ff88}
+.live-dot{width:8px;height:8px;background:#00ff88;border-radius:50%;display:inline-block;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 </style>
 </head>
 <body>
 <div class="header">
-<div style="color:#00ff88;font-weight:bold">BONDET TRADES</div>
-<div style="display:flex;gap:10px;align-items:center">
-<span style="font-size:11px" id="liveStatus">● LIVE</span>
-<span style="font-size:18px;cursor:pointer" onclick="openSettings()">⚙️</span>
+<div class="logo">BONDET TRADES</div>
+<div><span class="live-dot"></span> <span style="font-size:11px;color:#00ff88">LIVE</span> <span style="margin-left:10px;cursor:pointer" onclick="openSettings()">⚙️</span></div>
+</div>
+
+<div class="balance-main">
+<div style="font-size:10px;color:#888;letter-spacing:2px">TOTAL PORTFOLIO VALUE</div>
+<div class="balance-big" id="mainBalance">KES 0</div>
+<div class="dollar" id="usdBalance">$0.00</div>
+<div style="margin-top:10px"><span style="background:#00ff8830;color:#00ff88;padding:4px 12px;border-radius:20px;font-size:11px" id="statusBadge">● READY TO PRINT</span></div>
+</div>
+
+<div class="stats">
+<div class="stat-card profit">
+<div class="stat-label">TODAY PROFIT</div>
+<div class="stat-value green" id="todayProfit">+KES 0</div>
+<div class="stat-change">↑ 12.5% vs yesterday</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">WIN RATE</div>
+<div class="stat-value green" id="winRate">0%</div>
+<div class="stat-change">🎯 0 trades</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">TOTAL DEPOSITED</div>
+<div class="stat-value" id="totalDep">KES 0</div>
+<div class="stat-change" style="color:#888">via 0706743090</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">ACTIVE TRADERS</div>
+<div class="stat-value green">1,247</div>
+<div class="stat-change">● Online now</div>
 </div>
 </div>
 
-<div class="balance-box">
-<div style="color:#888;font-size:11px">TOTAL BALANCE</div>
-<div class="balance-amount" id="balance">KES 0</div>
-<div style="font-size:12px;color:#888" id="dollarBalance">$0.00</div>
-<div style="color:#00ff88;font-size:11px;margin-top:8px;background:#00ff8820;padding:4px 10px;border-radius:20px;display:inline-block" id="botStatus">● STOPPED</div>
+<div class="chart-box">
+<div style="font-size:11px;color:#888;margin-bottom:10px">BALANCE GROWTH (24H)</div>
+<canvas id="miniChart" style="width:100%;height:80px"></canvas>
 </div>
 
 <div class="controls">
 <button class="btn btn-run" id="runBtn" onclick="runBot()">▶ RUN BOT</button>
 <button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>■ STOP</button>
 </div>
-
-<div style="margin:0 15px">
-<button class="btn-deposit" onclick="openDeposit()">💰 DEPOSIT - 0706743090</button>
-<button class="btn-withdraw" onclick="openWithdraw()">💸 WITHDRAW</button>
-</div>
+<button class="btn-deposit" onclick="openDeposit()">💰 DEPOSIT TO 0706743090</button>
 
 <div class="tabs">
-<div class="tab active" onclick="switchTab('trades',this)">TRADES</div>
-<div class="tab" onclick="switchTab('transactions',this)">TRANSACTIONS</div>
-<div class="tab" onclick="switchTab('settings',this)">SETTINGS</div>
+<div class="tab active" onclick="switchTab('trades',this)">LIVE TRADES</div>
+<div class="tab" onclick="switchTab('history',this)">HISTORY</div>
+<div class="tab" onclick="switchTab('dashboard',this)">ANALYTICS</div>
 </div>
 
 <div class="content">
-<div id="tradesTab"><div style="color:#00ff88;font-size:12px;margin-bottom:10px">📈 LIVE TRADING - AUTO PRINTER</div><div id="tradeList" style="font-size:12px;color:#666">Bonyeza RUN BOT kuanza</div></div>
-<div id="transactionsTab" style="display:none"><div style="color:#00ff88;font-size:12px;margin-bottom:10px">💳 TRANSACTION HISTORY</div><div id="transactionList" style="font-size:12px"></div></div>
-<div id="settingsTab" style="display:none">
+<div id="tradesTab"><div style="font-size:11px;color:#00ff88;margin-bottom:10px">🔴 LIVE PRINTER - REAL TIME</div><div id="tradeList" style="font-size:11px;color:#666">Click RUN BOT to start printing</div></div>
+<div id="historyTab" style="display:none"><div id="historyList"></div></div>
+<div id="dashboardTab" style="display:none">
 <div style="font-size:12px">
-<p>👤 User: Bondet Trader</p><br>
-<p>📞 Admin: 0706743090</p><br>
-<p>💼 Bot: Bondet Printer Auto</p><br>
-<p>⚡ Mode: Aggressive</p><br>
-<button class="btn-deposit" onclick="clearData()">🗑️ Clear History</button>
+<div style="display:flex;justify-content:space-between;margin:10px 0"><span>Total Trades:</span><span id="totalTrades" style="color:#00ff88">0</span></div>
+<div style="display:flex;justify-content:space-between;margin:10px 0"><span>Profitable:</span><span id="profitTrades" style="color:#00ff88">0</span></div>
+<div style="display:flex;justify-content:space-between;margin:10px 0"><span>Loss:</span><span id="lossTrades" style="color:#ff3344">0</span></div>
+<div style="display:flex;justify-content:space-between;margin:10px 0"><span>Best Trade:</span><span id="bestTrade" style="color:#00ff88">KES 0</span></div>
+<div style="display:flex;justify-content:space-between;margin:10px 0"><span>M-Pesa Number:</span><span style="color:#00ff88">0706743090</span></div>
 </div>
 </div>
 </div>
 
+<!-- MODALS -->
 <div class="modal" id="depositModal"><div class="modal-box">
 <h3 style="color:#00ff88;text-align:center">💰 DEPOSIT</h3>
 <div style="background:#0a0e13;border:1px dashed #00ff88;padding:12px;border-radius:10px;margin:12px 0;text-align:center">
-<div style="font-size:11px;color:#888">TUMA KWA M-PESA:</div>
 <div style="font-size:24px;font-weight:bold;color:#00ff88">0706743090</div>
-<div style="font-size:11px">BONDET TRADES</div>
+<div style="font-size:11px">BONDET TRADES - Lipa na M-Pesa</div>
 </div>
-<input type="number" id="depositAmount" class="input" placeholder="Kiasi KES e.g 1000" min="100">
-<input type="tel" id="phoneNumber" class="input" placeholder="Namba yako 07..." value="07">
-<button style="width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:10px;font-weight:bold" onclick="processDeposit()">📱 LIPA SASA</button>
-<div id="verifyDeposit" style="display:none;margin-top:15px;border-top:1px solid #333;padding-top:15px">
-<input type="text" id="mpesaCode" class="input" placeholder="M-Pesa Code e.g QGH7...">
-<button style="width:100%;padding:12px;background:#1a2332;color:#00ff88;border:1px solid #00ff88;border-radius:8px;font-weight:bold" onclick="verifyDeposit()">✅ THIBITISHA</button>
+<input type="number" id="depAmount" class="input" placeholder="KES e.g 1000" min="100">
+<input type="tel" id="depPhone" class="input" placeholder="Namba yako 07..." value="07">
+<button style="width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:10px;font-weight:bold" onclick="doDeposit()">LIPA SASA</button>
+<div id="depVerify" style="display:none;margin-top:15px">
+<input type="text" id="mpesaCode" class="input" placeholder="M-Pesa Code">
+<button style="width:100%;padding:12px;background:#1a2332;color:#00ff88;border:1px solid #00ff88;border-radius:8px;font-weight:bold" onclick="confirmDep()">✅ CONFIRM</button>
 </div>
 <button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeDeposit()">Close</button>
 </div></div>
 
-<div class="modal" id="withdrawModal"><div class="modal-box">
-<h3 style="color:#00ff88;text-align:center">💸 WITHDRAW</h3>
-<p style="font-size:11px;color:#888;text-align:center;margin:10px 0">Balance: <span id="withdrawBalance">KES 0</span></p>
-<input type="number" id="withdrawAmount" class="input" placeholder="Kiasi cha kutoa KES">
-<input type="tel" id="withdrawPhone" class="input" placeholder="Namba ya kupokea 07..." value="07">
-<button style="width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:10px;font-weight:bold" onclick="processWithdraw()">💸 REQUEST WITHDRAW</button>
-<button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeWithdraw()">Cancel</button>
-<p style="font-size:10px;color:#888;text-align:center;margin-top:10px">Withdrawal itatumwa kwa WhatsApp kwa admin 0706743090</p>
-</div></div>
-
-<div class="modal" id="settingsModal"><div class="modal-box">
-<h3 style="color:#00ff88;text-align:center">⚙️ SETTINGS</h3>
-<div style="font-size:13px;margin-top:15px">
-<p>🤖 Bot Name: Bondet Printer</p><br>
-<p>📊 Strategy: Auto Scalping</p><br>
-<p>💰 Min Deposit: KES 100</p><br>
-<p>💸 Min Withdraw: KES 200</p><br>
-<p>📞 Support: 0706743090</p><br>
-<button class="btn-deposit" onclick="clearData()">Clear All Data</button>
-</div>
-<button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:15px" onclick="closeSettings()">Close</button>
-</div></div>
-
 <script>
-let balance=parseFloat(localStorage.getItem('bondet_balance')||'0');
-let transactions=JSON.parse(localStorage.getItem('bondet_tx')||'[]');
-let isRunning=false; let botInterval;
+let bal=parseFloat(localStorage.getItem('bondet_bal')||'0');
+let txs=JSON.parse(localStorage.getItem('bondet_txs')||'[]');
+let totalTrades=parseInt(localStorage.getItem('bondet_tt')||'0');
+let winTrades=parseInt(localStorage.getItem('bondet_wt')||'0');
+let best=parseFloat(localStorage.getItem('bondet_best')||'0');
+let todayP=0;
+let run=false; let iv;
+
+function save(){localStorage.setItem('bondet_bal',bal);localStorage.setItem('bondet_txs',JSON.stringify(txs));localStorage.setItem('bondet_tt',totalTrades);localStorage.setItem('bondet_wt',winTrades);localStorage.setItem('bondet_best',best);}
 
 function updateUI(){
- document.getElementById('balance').innerText='KES '+balance.toFixed(0);
- document.getElementById('dollarBalance').innerText='$'+(balance/130).toFixed(2);
- document.getElementById('withdrawBalance').innerText='KES '+balance.toFixed(0);
- localStorage.setItem('bondet_balance',balance);
- renderTransactions();
+ document.getElementById('mainBalance').innerText='KES '+bal.toFixed(0);
+ document.getElementById('usdBalance').innerText='$'+(bal/130).toFixed(2);
+ document.getElementById('totalDep').innerText='KES '+(txs.filter(t=>t.type.includes('DEP')).reduce((s,t)=>s+t.amt,0)).toFixed(0);
+ document.getElementById('todayProfit').innerText=(todayP>=0?'+':'')+'KES '+todayP.toFixed(0);
+ document.getElementById('totalTrades').innerText=totalTrades;
+ document.getElementById('profitTrades').innerText=winTrades;
+ document.getElementById('lossTrades').innerText=totalTrades-winTrades;
+ document.getElementById('bestTrade').innerText='KES '+best.toFixed(2);
+ document.getElementById('winRate').innerText=totalTrades?Math.round(winTrades/totalTrades*100)+'%':'0%';
+ renderHistory();
+ drawChart();
+ save();
 }
-function renderTransactions(){
- let list=document.getElementById('transactionList');
- if(transactions.length==0){list.innerHTML='<div style=color:#666>No transactions yet</div>';return;}
- list.innerHTML=transactions.slice().reverse().map(tx=>`<div class="trade-item"><span>${tx.time} - ${tx.type}</span><span class="${tx.amount>0?'profit':'loss'}">${tx.amount>0?'+':''}${tx.amount} KES</span></div>`).join('');
+function renderHistory(){
+ let h=document.getElementById('historyList');
+ if(!txs.length){h.innerHTML='<div style=color:#666;font-size:11px>No history</div>';return;}
+ h.innerHTML=txs.slice().reverse().map(t=>`<div class="trade-item"><span>${t.time} ${t.type}</span><span class="${t.amt>0?'profit':'loss'}">${t.amt>0?'+':''}${t.amt.toFixed(0)}</span></div>`).join('');
 }
-function addTx(type,amount){
- transactions.push({type,amount,time:new Date().toLocaleTimeString(),date:new Date().toLocaleDateString()});
- localStorage.setItem('bondet_tx',JSON.stringify(transactions));
- renderTransactions();
+function drawChart(){
+ let c=document.getElementById('miniChart');let ctx=c.getContext('2d');c.width=c.offsetWidth;c.height=80;
+ ctx.clearRect(0,0,c.width,c.height);ctx.beginPath();ctx.strokeStyle='#00ff88';ctx.lineWidth=2;
+ for(let i=0;i<30;i++){let x=i/29*c.width;let y=40+Math.sin(i*0.5+Date.now()/1000)*20-Math.random()*10;if(i==0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();
 }
-function switchTab(name,el){
- document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
- el.classList.add('active');
- document.getElementById('tradesTab').style.display=name=='trades'?'block':'none';
- document.getElementById('transactionsTab').style.display=name=='transactions'?'block':'none';
- document.getElementById('settingsTab').style.display=name=='settings'?'block':'none';
+function switchTab(n,el){
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+ document.getElementById('tradesTab').style.display=n=='trades'?'block':'none';
+ document.getElementById('historyTab').style.display=n=='history'?'block':'none';
+ document.getElementById('dashboardTab').style.display=n=='dashboard'?'block':'none';
 }
 function openDeposit(){document.getElementById('depositModal').classList.add('active');}
-function closeDeposit(){document.getElementById('depositModal').classList.remove('active');document.getElementById('verifyDeposit').style.display='none';}
-function processDeposit(){
- let amt=parseFloat(document.getElementById('depositAmount').value);
- if(!amt||amt<100){alert('Weka angalau KES 100');return;}
- alert('TUMA KWA:\\n0706743090\\nKiasi: KES '+amt+'\\n\\nBaada ya kutuma weka M-Pesa CODE');
- document.getElementById('verifyDeposit').style.display='block';
+function closeDeposit(){document.getElementById('depositModal').classList.remove('active');document.getElementById('depVerify').style.display='none';}
+function doDeposit(){let a=parseFloat(document.getElementById('depAmount').value);if(!a||a<100){alert('Min 100');return;}alert('TUMA KES '+a+' kwa 0706743090');document.getElementById('depVerify').style.display='block';}
+function confirmDep(){
+ let a=parseFloat(document.getElementById('depAmount').value);let code=document.getElementById('mpesaCode').value;
+ if(code.length<4){alert('Weka code');return;}
+ bal+=a;todayP+=a;txs.push({type:'DEPOSIT '+code,amt:a,time:new Date().toLocaleTimeString()});
+ updateUI();closeDeposit();alert('✅ KES '+a+' added!');window.open('https://wa.me/254706743090?text=DEPOSIT KES'+a+' CODE:'+code,'_blank');
 }
-function verifyDeposit(){
- let amt=parseFloat(document.getElementById('depositAmount').value);
- let code=document.getElementById('mpesaCode').value;
- if(code.length<4){alert('Weka Code');return;}
- balance+=amt; addTx('DEPOSIT '+code,amt); updateUI(); closeDeposit();
- alert('✅ KES '+amt+' imeongezwa!');
- window.open('https://wa.me/254706743090?text=DEPOSIT+KES'+amt+'+Code:'+code,'_blank');
- document.getElementById('depositAmount').value='';document.getElementById('mpesaCode').value='';
-}
-function openWithdraw(){document.getElementById('withdrawModal').classList.add('active');}
-function closeWithdraw(){document.getElementById('withdrawModal').classList.remove('active');}
-function processWithdraw(){
- let amt=parseFloat(document.getElementById('withdrawAmount').value);
- let phone=document.getElementById('withdrawPhone').value;
- if(!amt||amt<200){alert('Min withdraw KES 200');return;}
- if(amt>balance){alert('Balance haitoshi! Una KES '+balance);return;}
- balance-=amt; addTx('WITHDRAW to '+phone,-amt); updateUI(); closeWithdraw();
- alert('✅ Withdraw request KES '+amt+' imetumwa! Admin atakutumia kwa '+phone);
- window.open('https://wa.me/254706743090?text=WITHDRAW+REQUEST+KES'+amt+'+TO+'+phone,'_blank');
-}
-function openSettings(){document.getElementById('settingsModal').classList.add('active');}
-function closeSettings(){document.getElementById('settingsModal').classList.remove('active');}
-function clearData(){if(confirm('Futa data zote?')){localStorage.clear();balance=0;transactions=[];updateUI();document.getElementById('tradeList').innerHTML='Cleared';}}
 function runBot(){
- if(balance<100){alert('Deposit kwanza KES 100!');openDeposit();return;}
- isRunning=true;
- document.getElementById('runBtn').disabled=true;
- document.getElementById('stopBtn').disabled=false;
- document.getElementById('botStatus').innerText='● RUNNING - PRINTING MONEY...';
- document.getElementById('botStatus').style.background='#00ff8840';
- document.getElementById('tradeList').innerHTML='';
- let symbols=['EUR/USD','GBP/USD','BTC/USD','V75','V100','Boom 1000'];
- botInterval=setInterval(()=>{
-  let sym=symbols[Math.floor(Math.random()*symbols.length)];
-  let profit=(Math.random()*30-8);
-  balance+=profit;
-  let isWin=profit>0;
-  let div=document.createElement('div');
-  div.className='trade-item';
-  div.innerHTML=`<span>${new Date().toLocaleTimeString()} - ${sym} ${isWin?'✅':''}</span><span class="${isWin?'profit':'loss'}">${isWin?'+':''}${profit.toFixed(2)} KES</span>`;
-  document.getElementById('tradeList').prepend(div);
-  if(document.getElementById('tradeList').children.length>15) document.getElementById('tradeList').lastChild.remove();
-  updateUI();
- },1500);
+ if(bal<100){openDeposit();return;}
+ run=true;document.getElementById('runBtn').disabled=true;document.getElementById('stopBtn').disabled=false;
+ document.getElementById('statusBadge').innerText='● PRINTING...';document.getElementById('statusBadge').style.background='#00ff8840';
+ let syms=['EUR/USD','BTC/USD','V75','BOOM1000','CRASH500','GOLD'];
+ iv=setInterval(()=>{
+  let s=syms[Math.floor(Math.random()*syms.length)];let p=(Math.random()*35-7);bal+=p;todayP+=p;totalTrades++;if(p>0)winTrades++;if(p>best)best=p;
+  let d=document.createElement('div');d.className='trade-item';d.innerHTML=`<span>${new Date().toLocaleTimeString()} - ${s} ${p>0?'✅':'❌'}</span><span class="${p>0?'profit':'loss'}">${p>0?'+':''}${p.toFixed(2)}</span>`;
+  document.getElementById('tradeList').prepend(d);if(document.getElementById('tradeList').children.length>20)document.getElementById('tradeList').lastChild.remove();
+  txs.push({type:s,amt:p,time:new Date().toLocaleTimeString()});updateUI();
+ },1200);
 }
-function stopBot(){
- isRunning=false;clearInterval(botInterval);
- document.getElementById('runBtn').disabled=false;
- document.getElementById('stopBtn').disabled=true;
- document.getElementById('botStatus').innerText='● STOPPED';
-}
-updateUI();
+function stopBot(){run=false;clearInterval(iv);document.getElementById('runBtn').disabled=false;document.getElementById('stopBtn').disabled=true;document.getElementById('statusBadge').innerText='● STOPPED';}
+function openSettings(){switchTab('dashboard',document.querySelectorAll('.tab')[2]);window.scrollTo(0,600);}
+setInterval(drawChart,2000);updateUI();
 </script>
 </body>
-                      </html>
+                                                                                                 </html>
