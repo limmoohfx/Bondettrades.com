@@ -6,21 +6,16 @@
 <title>BondetTrades - Dashboard Pro</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#0a0e13;color:white;padding-bottom:20px}
+body{background:#0a0e13;color:white;padding-bottom:30px}
 .header{background:#11151c;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #00ff88}
 .logo{color:#00ff88;font-weight:bold;font-size:18px}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px}
 .stat-card{background:#1a2332;border:1px solid #222;border-radius:12px;padding:15px}
-.stat-card.profit{border-color:#00ff88}
-.stat-card.loss{border-color:#ff3344}
 .stat-label{font-size:10px;color:#888;letter-spacing:1px}
 .stat-value{font-size:20px;font-weight:bold;margin:5px 0}
-.stat-value.green{color:#00ff88}.stat-value.red{color:#ff3344}
-.stat-change{font-size:10px;color:#00ff88}
+.stat-value.green{color:#00ff88}
 .balance-main{background:linear-gradient(135deg,#1a2332,#0f1a2a);border:2px solid #00ff88;border-radius:16px;padding:20px;margin:15px;text-align:center}
 .balance-big{font-size:36px;font-weight:bold;color:#00ff88}
-.dollar{color:#888;font-size:14px}
-.chart-box{background:#11151c;border-radius:12px;padding:15px;margin:15px;height:120px;position:relative;overflow:hidden}
 .tabs{display:flex;background:#11151c;margin:15px;border-radius:10px;padding:4px}
 .tab{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:11px;cursor:pointer;color:#888}
 .tab.active{background:#00ff88;color:#000;font-weight:bold}
@@ -29,64 +24,63 @@ body{background:#0a0e13;color:white;padding-bottom:20px}
 .profit{color:#00ff88}.loss{color:#ff3344}
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;align-items:center;justify-content:center;padding:15px}
 .modal.active{display:flex}.modal-box{background:#1a2332;border:2px solid #00ff88;border-radius:16px;padding:20px;width:100%;max-width:380px}
+.modal-box.red{border-color:#ff3344}
 .input{width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0a0e13;color:white;margin:8px 0}
 .btn{flex:1;padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
 .btn-run{background:#00ff88;color:#000}.btn-stop{background:#ff3344;color:#fff}
-.btn-deposit{background:#00ff88;color:#000;width:calc(100% - 30px);margin:10px 15px;padding:16px;border-radius:12px;font-size:16px;font-weight:bold}
+.btn-deposit{background:#00ff88;color:#000;width:calc(100% - 30px);margin:10px 15px 5px 15px;padding:16px;border-radius:12px;font-size:16px;font-weight:bold;border:none}
+.btn-withdraw{background:#11151c;color:#ff3344;border:2px solid #ff3344;width:calc(100% - 30px);margin:5px 15px;padding:16px;border-radius:12px;font-size:16px;font-weight:bold}
 .controls{display:flex;gap:10px;margin:15px}
 .live-dot{width:8px;height:8px;background:#00ff88;border-radius:50%;display:inline-block;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="logo">BONDET TRADES</div>
-<div><span class="live-dot"></span> <span style="font-size:11px;color:#00ff88">LIVE</span> <span style="margin-left:10px">⚙️</span></div>
-</div>
+<div class="header"><div class="logo">BONDET TRADES</div><div><span class="live-dot"></span> <span style="font-size:11px;color:#00ff88">LIVE</span></div></div>
 <div class="balance-main">
-<div style="font-size:10px;color:#888;letter-spacing:2px">TOTAL PORTFOLIO</div>
+<div style="font-size:10px;color:#888">TOTAL PORTFOLIO</div>
 <div class="balance-big" id="mainBalance">KES 0</div>
-<div class="dollar" id="usdBalance">$0.00</div>
+<div style="font-size:12px;color:#888" id="usdBalance">$0.00</div>
 <div style="margin-top:10px"><span style="background:#00ff8830;color:#00ff88;padding:4px 12px;border-radius:20px;font-size:11px" id="statusBadge">● READY</span></div>
 </div>
 <div class="stats">
-<div class="stat-card profit"><div class="stat-label">TODAY PROFIT</div><div class="stat-value green" id="todayProfit">+KES 0</div><div class="stat-change">↑ 12.5%</div></div>
-<div class="stat-card"><div class="stat-label">WIN RATE</div><div class="stat-value green" id="winRate">0%</div><div class="stat-change">🎯 0 trades</div></div>
-<div class="stat-card"><div class="stat-label">TOTAL DEPOSITED</div><div class="stat-value" id="totalDep">KES 0</div><div class="stat-change" style="color:#888">via 0799365415</div></div>
-<div class="stat-card"><div class="stat-label">ACTIVE TRADERS</div><div class="stat-value green">1,247</div><div class="stat-change">● Online</div></div>
+<div class="stat-card"><div class="stat-label">TODAY PROFIT</div><div class="stat-value green" id="todayProfit">+KES 0</div></div>
+<div class="stat-card"><div class="stat-label">WIN RATE</div><div class="stat-value green" id="winRate">0%</div></div>
+<div class="stat-card"><div class="stat-label">DEPOSITED</div><div class="stat-value" id="totalDep">KES 0</div><div style="font-size:9px;color:#888">via 0799365415</div></div>
+<div class="stat-card"><div class="stat-label">ACTIVE TRADERS</div><div class="stat-value green">1,247</div></div>
 </div>
-<div class="chart-box"><div style="font-size:11px;color:#888">BALANCE GROWTH</div><canvas id="miniChart" style="width:100%;height:80px"></canvas></div>
+<div style="background:#11151c;border-radius:12px;padding:15px;margin:15px;height:100px"><div style="font-size:11px;color:#888">BALANCE GROWTH</div><canvas id="miniChart" style="width:100%;height:70px"></canvas></div>
 <div class="controls"><button class="btn btn-run" id="runBtn" onclick="runBot()">▶ RUN BOT</button><button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>■ STOP</button></div>
 <button class="btn-deposit" onclick="openDeposit()">💰 DEPOSIT TO 0799365415</button>
-<div class="tabs">
-<div class="tab active" onclick="switchTab('trades',this)">LIVE TRADES</div>
-<div class="tab" onclick="switchTab('history',this)">HISTORY</div>
-<div class="tab" onclick="switchTab('dashboard',this)">ANALYTICS</div>
-</div>
+<button class="btn-withdraw" onclick="openWithdraw()">💸 WITHDRAW TO M-PESA</button>
+<div class="tabs"><div class="tab active" onclick="switchTab('trades',this)">LIVE TRADES</div><div class="tab" onclick="switchTab('history',this)">HISTORY</div><div class="tab" onclick="switchTab('dashboard',this)">ANALYTICS</div></div>
 <div class="content">
 <div id="tradesTab"><div style="font-size:11px;color:#00ff88;margin-bottom:10px">🔴 LIVE PRINTER</div><div id="tradeList" style="font-size:11px;color:#666">Click RUN BOT</div></div>
 <div id="historyTab" style="display:none"><div id="historyList"></div></div>
-<div id="dashboardTab" style="display:none"><div style="font-size:12px">
-<div style="display:flex;justify-content:space-between;margin:10px 0"><span>Total Trades:</span><span id="totalTrades" style="color:#00ff88">0</span></div>
-<div style="display:flex;justify-content:space-between;margin:10px 0"><span>Profitable:</span><span id="profitTrades" style="color:#00ff88">0</span></div>
-<div style="display:flex;justify-content:space-between;margin:10px 0"><span>M-Pesa:</span><span style="color:#00ff88">0799365415</span></div>
-</div></div>
+<div id="dashboardTab" style="display:none"><div id="dashInfo"></div></div>
 </div>
+
+<!-- DEPOSIT MODAL -->
 <div class="modal" id="depositModal"><div class="modal-box">
 <h3 style="color:#00ff88;text-align:center">💰 DEPOSIT</h3>
-<div style="background:#0a0e13;border:1px dashed #00ff88;padding:12px;border-radius:10px;margin:12px 0;text-align:center">
-<div style="font-size:24px;font-weight:bold;color:#00ff88">0799365415</div>
-<div style="font-size:11px">BONDET TRADES</div>
-</div>
+<div style="background:#0a0e13;border:1px dashed #00ff88;padding:12px;border-radius:10px;margin:12px 0;text-align:center"><div style="font-size:24px;font-weight:bold;color:#00ff88">0799365415</div><div style="font-size:11px">BONDET TRADES</div></div>
 <input type="number" id="depAmount" class="input" placeholder="KES e.g 1000" min="100">
 <input type="tel" id="depPhone" class="input" placeholder="Namba yako 07..." value="07">
 <button style="width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:10px;font-weight:bold" onclick="doDeposit()">LIPA SASA</button>
-<div id="depVerify" style="display:none;margin-top:15px">
-<input type="text" id="mpesaCode" class="input" placeholder="M-Pesa Code">
-<button style="width:100%;padding:12px;background:#1a2332;color:#00ff88;border:1px solid #00ff88;border-radius:8px;font-weight:bold" onclick="confirmDep()">✅ CONFIRM</button>
-</div>
+<div id="depVerify" style="display:none;margin-top:15px"><input type="text" id="mpesaCode" class="input" placeholder="M-Pesa Code"><button style="width:100%;padding:12px;background:#1a2332;color:#00ff88;border:1px solid #00ff88;border-radius:8px;font-weight:bold" onclick="confirmDep()">✅ CONFIRM</button></div>
 <button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeDeposit()">Close</button>
 </div></div>
+
+<!-- WITHDRAW MODAL -->
+<div class="modal" id="withdrawModal"><div class="modal-box red">
+<h3 style="color:#ff3344;text-align:center">💸 WITHDRAW</h3>
+<div style="background:#0a0e13;padding:12px;border-radius:10px;margin:12px 0;text-align:center"><div style="font-size:14px;color:#888">Available Balance</div><div style="font-size:24px;font-weight:bold;color:#00ff88" id="withdrawBal">KES 0</div></div>
+<input type="number" id="withAmount" class="input" placeholder="Kiasi cha kutoa (Min 500)" min="500">
+<input type="tel" id="withPhone" class="input" placeholder="Namba ya kupokea M-Pesa" value="07">
+<button style="width:100%;padding:14px;background:#ff3344;color:#fff;border:none;border-radius:10px;font-weight:bold" onclick="doWithdraw()">💸 TOA PESA SASA</button>
+<button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeWithdraw()">Cancel</button>
+</div></div>
+
 <script>
 let bal=parseFloat(localStorage.getItem('bondet_bal')||'0');
 let txs=JSON.parse(localStorage.getItem('bondet_txs')||'[]');
@@ -98,24 +92,35 @@ function save(){localStorage.setItem('bondet_bal',bal);localStorage.setItem('bon
 function updateUI(){
  document.getElementById('mainBalance').innerText='KES '+bal.toFixed(0);
  document.getElementById('usdBalance').innerText='$'+(bal/130).toFixed(2);
- document.getElementById('totalDep').innerText='KES '+(txs.filter(t=>t.type.includes('DEP')).reduce((s,t)=>s+t.amt,0)).toFixed(0);
+ document.getElementById('withdrawBal').innerText='KES '+bal.toFixed(0);
+ document.getElementById('totalDep').innerText='KES '+(txs.filter(t=>t.type.includes('DEPOSIT')).reduce((s,t)=>s+t.amt,0)).toFixed(0);
  document.getElementById('todayProfit').innerText=(todayP>=0?'+':'')+'KES '+todayP.toFixed(0);
- document.getElementById('totalTrades').innerText=totalTrades;
- document.getElementById('profitTrades').innerText=winTrades;
  document.getElementById('winRate').innerText=totalTrades?Math.round(winTrades/totalTrades*100)+'%':'0%';
+ document.getElementById('dashInfo').innerHTML=`<div style="font-size:12px"><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Total Trades:</span><span style="color:#00ff88">${totalTrades}</span></div><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Win:</span><span style="color:#00ff88">${winTrades}</span></div><div style="display:flex;justify-content:space-between;margin:10px 0"><span>Loss:</span><span style="color:#ff3344">${totalTrades-winTrades}</span></div><div style="display:flex;justify-content:space-between;margin:10px 0"><span>M-Pesa:</span><span style="color:#00ff88">0799365415</span></div></div>`;
  renderHistory();drawChart();save();
 }
-function renderHistory(){
- let h=document.getElementById('historyList');
- if(!txs.length){h.innerHTML='<div style=color:#666;font-size:11px>No history</div>';return;}
- h.innerHTML=txs.slice().reverse().map(t=>`<div class="trade-item"><span>${t.time} ${t.type}</span><span class="${t.amt>0?'profit':'loss'}">${t.amt>0?'+':''}${t.amt.toFixed(0)}</span></div>`).join('');
-}
-function drawChart(){let c=document.getElementById('miniChart');let ctx=c.getContext('2d');c.width=c.offsetWidth;c.height=80;ctx.clearRect(0,0,c.width,c.height);ctx.beginPath();ctx.strokeStyle='#00ff88';ctx.lineWidth=2;for(let i=0;i<30;i++){let x=i/29*c.width;let y=40+Math.sin(i*0.5+Date.now()/1000)*20-Math.random()*10;if(i==0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}
+function renderHistory(){let h=document.getElementById('historyList');if(!txs.length){h.innerHTML='<div style=color:#666;font-size:11px>No history</div>';return;}h.innerHTML=txs.slice().reverse().map(t=>`<div class="trade-item"><span>${t.time} ${t.type}</span><span class="${t.amt>0?'profit':'loss'}">${t.amt>0?'+':''}${t.amt.toFixed(0)}</span></div>`).join('');}
+function drawChart(){let c=document.getElementById('miniChart');let ctx=c.getContext('2d');c.width=c.offsetWidth;c.height=70;ctx.clearRect(0,0,c.width,c.height);ctx.beginPath();ctx.strokeStyle='#00ff88';ctx.lineWidth=2;for(let i=0;i<30;i++){let x=i/29*c.width;let y=35+Math.sin(i*0.5+Date.now()/1000)*15-Math.random()*5;if(i==0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}
 function switchTab(n,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tradesTab').style.display=n=='trades'?'block':'none';document.getElementById('historyTab').style.display=n=='history'?'block':'none';document.getElementById('dashboardTab').style.display=n=='dashboard'?'block':'none';}
 function openDeposit(){document.getElementById('depositModal').classList.add('active');}
 function closeDeposit(){document.getElementById('depositModal').classList.remove('active');document.getElementById('depVerify').style.display='none';}
+function openWithdraw(){document.getElementById('withdrawBal').innerText='KES '+bal.toFixed(0);document.getElementById('withdrawModal').classList.add('active');}
+function closeWithdraw(){document.getElementById('withdrawModal').classList.remove('active');}
 function doDeposit(){let a=parseFloat(document.getElementById('depAmount').value);if(!a||a<100){alert('Min 100');return;}alert('TUMA KES '+a+' kwa 0799365415');document.getElementById('depVerify').style.display='block';}
 function confirmDep(){let a=parseFloat(document.getElementById('depAmount').value);let code=document.getElementById('mpesaCode').value;if(code.length<4){alert('Weka code');return;}bal+=a;todayP+=a;txs.push({type:'DEPOSIT '+code,amt:a,time:new Date().toLocaleTimeString()});updateUI();closeDeposit();alert('✅ KES '+a+' added!');window.open('https://wa.me/254799365415?text=DEPOSIT KES'+a+' CODE:'+code,'_blank');}
+function doWithdraw(){
+ let a=parseFloat(document.getElementById('withAmount').value);
+ let ph=document.getElementById('withPhone').value;
+ if(!a||isNaN(a)){alert('Weka kiasi');return;}
+ if(a<500){alert('Min withdraw ni KES 500');return;}
+ if(a>bal){alert('Balance haitoshi! Una KES '+bal);return;}
+ if(ph.length<10){alert('Weka namba sahihi');return;}
+ bal-=a;
+ txs.push({type:'WITHDRAW to '+ph,amt:-a,time:new Date().toLocaleTimeString()});
+ updateUI();closeWithdraw();
+ alert('✅ WITHDRAW SUCCESS! KES '+a+' imetumwa kwa '+ph+'\n\nSubiri 2-5 min!');
+ window.open('https://wa.me/254799365415?text=🔴 WITHDRAW REQUEST%0AKES '+a+'%0ATO: '+ph+'%0ABALANCE: KES '+bal.toFixed(0),'_blank');
+}
 function runBot(){if(bal<100){openDeposit();return;}document.getElementById('runBtn').disabled=true;document.getElementById('stopBtn').disabled=false;document.getElementById('statusBadge').innerText='● PRINTING...';let syms=['EUR/USD','BTC/USD','V75','BOOM1000','CRASH500','GOLD'];iv=setInterval(()=>{let s=syms[Math.floor(Math.random()*syms.length)];let p=(Math.random()*35-7);bal+=p;todayP+=p;totalTrades++;if(p>0)winTrades++;if(p>best)best=p;let d=document.createElement('div');d.className='trade-item';d.innerHTML=`<span>${new Date().toLocaleTimeString()} - ${s} ${p>0?'✅':'❌'}</span><span class="${p>0?'profit':'loss'}">${p>0?'+':''}${p.toFixed(2)}</span>`;document.getElementById('tradeList').prepend(d);if(document.getElementById('tradeList').children.length>20)document.getElementById('tradeList').lastChild.remove();txs.push({type:s,amt:p,time:new Date().toLocaleTimeString()});updateUI();},1200);}
 function stopBot(){clearInterval(iv);document.getElementById('runBtn').disabled=false;document.getElementById('stopBtn').disabled=true;document.getElementById('statusBadge').innerText='● STOPPED';}
 setInterval(drawChart,2000);updateUI();
