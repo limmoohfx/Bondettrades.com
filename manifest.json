@@ -1,13 +1,11 @@
 {
-  "name": "Bondet Trades",
-  "short_name": "Bondet",
-  "start_url": "./index.html",
+  "name": "BondetTrades - Dollar Printer",
+  "short_name": "BondetTrades",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#0a0e1a",
+  "background_color": "#000000",
   "theme_color": "#00ff66",
-  "icons": [{
-    "src": "https://cdn-icons-png.flaticon.com/512/138/138292.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }]
+  "icons": [
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
