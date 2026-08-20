@@ -1,1 +1,13 @@
-    <link rel="manifest" href="manifest.json">
+{
+  "name": "Bondet Trades",
+  "short_name": "Bondet",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#00ff66",
+  "icons": [{
+    "src": "https://cdn-icons-png.flaticon.com/512/138/138292.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+}
