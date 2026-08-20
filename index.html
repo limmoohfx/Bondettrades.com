@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BondetTrades</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#0a0e13;color:white;padding-bottom:20px}
+.header{background:#11151c;padding:15px;display:flex;justify-content:space-between;border-bottom:2px solid #00ff88}
+.balance-box{background:#1a2332;border:1px solid #00ff88;border-radius:12px;padding:20px;margin:15px;text-align:center}
+.balance-amount{font-size:32px;font-weight:bold;margin:10px 0}
+.btn{padding:15px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+.btn-run{background:#00ff88;color:#000}
+.btn-stop{background:#ff3344;color:white}
+.btn-deposit{background:#1a2332;color:#00ff88;border:1px solid #00ff88;width:calc(100% - 30px);margin:0 15px;padding:15px;border-radius:10px;font-weight:bold}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal-box{background:#1a2332;border:2px solid #00ff88;border-radius:15px;padding:25px;width:100%;max-width:350px}
+.modal-box input{width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0a0e13;color:white;margin:10px 0;font-size:16px}
+.trades{background:#11151c;margin:15px;border-radius:12px;padding:15px;min-height:100px}
+</style>
+</head>
+<body>
+<div class="header"><div style="color:#00ff88;font-weight:bold">BONDET TRADES</div><div>● LIVE</div></div>
+<div class="balance-box"><div style="color:#888;font-size:12px">TOTAL BALANCE</div><div class="balance-amount" id="balance">$0.00</div><div style="color:#00ff88;font-size:12px" id="status">● READY</div></div>
+<div class="controls"><button class="btn btn-run" id="runBtn" onclick="runBot()">▶ RUN BOT</button><button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>■ STOP</button></div>
+<button class="btn-deposit" onclick="openDeposit()">💰 DEPOSIT / ADD FUNDS</button>
+<div class="trades" id="tradeList">No trades yet - Deposit first</div>
+<div class="modal" id="depositModal"><div class="modal-box"><h3 style="color:#00ff88;text-align:center">💰 DEPOSIT</h3><div style="background:#0a0e13;padding:10px;border-radius:8px;margin:10px 0;font-size:12px;border:1px dashed #00ff88">Till: <b>5623548</b> - BondetTrades<br>Au weka demo hapa chini</div><input type="number" id="depositAmount" placeholder="Weka kiasi e.g 1000"><button style="width:100%;padding:12px;background:#00ff88;border:none;border-radius:8px;font-weight:bold" onclick="confirmDeposit()">✅ CONFIRM DEPOSIT</button><button style="width:100%;padding:12px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeDeposit()">Cancel</button></div></div>
+<script>
+let balance=parseFloat(localStorage.getItem('bondet_balance')||'0');
+function updateUI(){document.getElementById('balance').innerText='$'+balance.toFixed(2);localStorage.setItem('bondet_balance',balance);}
+function openDeposit(){document.getElementById('depositModal').classList.add('active');}
+function closeDeposit(){document.getElementById('depositModal').classList.remove('active');}
+function confirmDeposit(){let amt=parseFloat(document.getElementById('depositAmount').value);if(!amt||amt<10){alert('Weka kuanzia $10');return;}balance+=amt;updateUI();closeDeposit();alert('✅ $'+amt+' imeongezwa! Balance: $'+balance.toFixed(2));document.getElementById('depositAmount').value='';document.getElementById('tradeList').innerHTML='<div>✅ DEPOSIT +$'+amt.toFixed(2)+'</div>';}
+function runBot(){if(balance<10){alert('Deposit kwanza $10!');openDeposit();return;}document.getElementById('status').innerText='● RUNNING - PRINTING...';document.getElementById('runBtn').disabled=true;document.getElementById('stopBtn').disabled=false;alert('Bot Started! Balance $'+balance);}
+function stopBot(){document.getElementById('status').innerText='● STOPPED';document.getElementById('runBtn').disabled=false;document.getElementById('stopBtn').disabled=true;}
+updateUI();
+</script>
+</body>
+  </html>
