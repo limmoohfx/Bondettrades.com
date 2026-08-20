@@ -1,43 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BondetTrades</title>
+<title>BondetTrades - Pro</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#0a0e13;color:white;padding-bottom:20px}
-.header{background:#11151c;padding:15px;display:flex;justify-content:space-between;border-bottom:2px solid #00ff88}
+body{background:#0a0e13;color:white;padding-bottom:80px}
+.header{background:#11151c;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #00ff88;position:sticky;top:0;z-index:100}
 .balance-box{background:#1a2332;border:1px solid #00ff88;border-radius:12px;padding:20px;margin:15px;text-align:center}
-.balance-amount{font-size:32px;font-weight:bold;margin:10px 0}
-.btn{padding:15px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
-.btn-run{background:#00ff88;color:#000}
-.btn-stop{background:#ff3344;color:white}
-.btn-deposit{background:#1a2332;color:#00ff88;border:1px solid #00ff88;width:calc(100% - 30px);margin:0 15px;padding:15px;border-radius:10px;font-weight:bold}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;padding:20px}
-.modal.active{display:flex}
-.modal-box{background:#1a2332;border:2px solid #00ff88;border-radius:15px;padding:25px;width:100%;max-width:350px}
-.modal-box input{width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0a0e13;color:white;margin:10px 0;font-size:16px}
-.trades{background:#11151c;margin:15px;border-radius:12px;padding:15px;min-height:100px}
+.balance-amount{font-size:32px;font-weight:bold;color:#00ff88}
+.btn{padding:14px;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
+.btn-run{background:#00ff88;color:#000;flex:1}.btn-stop{background:#ff3344;color:#fff;flex:1}
+.btn-deposit{background:#1a2332;color:#00ff88;border:1px solid #00ff88;width:100%;padding:14px;border-radius:10px;margin:5px 0}
+.btn-withdraw{background:#00ff88;color:#000;width:100%;padding:14px;border-radius:10px;margin:5px 0}
+.controls{display:flex;gap:10px;margin:15px}
+.tabs{display:flex;background:#11151c;margin:15px;border-radius:10px;padding:5px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;font-size:12px;cursor:pointer}
+.tab.active{background:#00ff88;color:#000;font-weight:bold}
+.content{margin:15px;background:#11151c;border-radius:12px;padding:15px;min-height:200px}
+.trade-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222;font-size:12px;animation:slideIn 0.3s}
+@keyframes slideIn{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
+.profit{color:#00ff88}.loss{color:#ff3344}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:1000;align-items:center;justify-content:center;padding:15px}
+.modal.active{display:flex}.modal-box{background:#1a2332;border:2px solid #00ff88;border-radius:16px;padding:20px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto}
+.input{width:100%;padding:12px;border-radius:8px;border:1px solid #333;background:#0a0e13;color:white;margin:8px 0}
+.bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:#11151c;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #00ff88}
+.nav-item{color:#888;font-size:10px;text-align:center;cursor:pointer}.nav-item.active{color:#00ff88}
 </style>
 </head>
 <body>
-<div class="header"><div style="color:#00ff88;font-weight:bold">BONDET TRADES</div><div>● LIVE</div></div>
-<div class="balance-box"><div style="color:#888;font-size:12px">TOTAL BALANCE</div><div class="balance-amount" id="balance">$0.00</div><div style="color:#00ff88;font-size:12px" id="status">● READY</div></div>
-<div class="controls"><button class="btn btn-run" id="runBtn" onclick="runBot()">▶ RUN BOT</button><button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>■ STOP</button></div>
-<button class="btn-deposit" onclick="openDeposit()">💰 DEPOSIT / ADD FUNDS</button>
-<div class="trades" id="tradeList">No trades yet - Deposit first</div>
-<div class="modal" id="depositModal"><div class="modal-box"><h3 style="color:#00ff88;text-align:center">💰 DEPOSIT</h3><div style="background:#0a0e13;padding:10px;border-radius:8px;margin:10px 0;font-size:12px;border:1px dashed #00ff88">Till: <b>5623548</b> - BondetTrades<br>Au weka demo hapa chini</div><input type="number" id="depositAmount" placeholder="Weka kiasi e.g 1000"><button style="width:100%;padding:12px;background:#00ff88;border:none;border-radius:8px;font-weight:bold" onclick="confirmDeposit()">✅ CONFIRM DEPOSIT</button><button style="width:100%;padding:12px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeDeposit()">Cancel</button></div></div>
+<div class="header">
+<div style="color:#00ff88;font-weight:bold">BONDET TRADES</div>
+<div style="display:flex;gap:10px;align-items:center">
+<span style="font-size:11px" id="liveStatus">● LIVE</span>
+<span style="font-size:18px;cursor:pointer" onclick="openSettings()">⚙️</span>
+</div>
+</div>
+
+<div class="balance-box">
+<div style="color:#888;font-size:11px">TOTAL BALANCE</div>
+<div class="balance-amount" id="balance">KES 0</div>
+<div style="font-size:12px;color:#888" id="dollarBalance">$0.00</div>
+<div style="color:#00ff88;font-size:11px;margin-top:8px;background:#00ff8820;padding:4px 10px;border-radius:20px;display:inline-block" id="botStatus">● STOPPED</div>
+</div>
+
+<div class="controls">
+<button class="btn btn-run" id="runBtn" onclick="runBot()">▶ RUN BOT</button>
+<button class="btn btn-stop" id="stopBtn" onclick="stopBot()" disabled>■ STOP</button>
+</div>
+
+<div style="margin:0 15px">
+<button class="btn-deposit" onclick="openDeposit()">💰 DEPOSIT - 0706743090</button>
+<button class="btn-withdraw" onclick="openWithdraw()">💸 WITHDRAW</button>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="switchTab('trades',this)">TRADES</div>
+<div class="tab" onclick="switchTab('transactions',this)">TRANSACTIONS</div>
+<div class="tab" onclick="switchTab('settings',this)">SETTINGS</div>
+</div>
+
+<div class="content">
+<div id="tradesTab"><div style="color:#00ff88;font-size:12px;margin-bottom:10px">📈 LIVE TRADING - AUTO PRINTER</div><div id="tradeList" style="font-size:12px;color:#666">Bonyeza RUN BOT kuanza</div></div>
+<div id="transactionsTab" style="display:none"><div style="color:#00ff88;font-size:12px;margin-bottom:10px">💳 TRANSACTION HISTORY</div><div id="transactionList" style="font-size:12px"></div></div>
+<div id="settingsTab" style="display:none">
+<div style="font-size:12px">
+<p>👤 User: Bondet Trader</p><br>
+<p>📞 Admin: 0706743090</p><br>
+<p>💼 Bot: Bondet Printer Auto</p><br>
+<p>⚡ Mode: Aggressive</p><br>
+<button class="btn-deposit" onclick="clearData()">🗑️ Clear History</button>
+</div>
+</div>
+</div>
+
+<div class="modal" id="depositModal"><div class="modal-box">
+<h3 style="color:#00ff88;text-align:center">💰 DEPOSIT</h3>
+<div style="background:#0a0e13;border:1px dashed #00ff88;padding:12px;border-radius:10px;margin:12px 0;text-align:center">
+<div style="font-size:11px;color:#888">TUMA KWA M-PESA:</div>
+<div style="font-size:24px;font-weight:bold;color:#00ff88">0706743090</div>
+<div style="font-size:11px">BONDET TRADES</div>
+</div>
+<input type="number" id="depositAmount" class="input" placeholder="Kiasi KES e.g 1000" min="100">
+<input type="tel" id="phoneNumber" class="input" placeholder="Namba yako 07..." value="07">
+<button style="width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:10px;font-weight:bold" onclick="processDeposit()">📱 LIPA SASA</button>
+<div id="verifyDeposit" style="display:none;margin-top:15px;border-top:1px solid #333;padding-top:15px">
+<input type="text" id="mpesaCode" class="input" placeholder="M-Pesa Code e.g QGH7...">
+<button style="width:100%;padding:12px;background:#1a2332;color:#00ff88;border:1px solid #00ff88;border-radius:8px;font-weight:bold" onclick="verifyDeposit()">✅ THIBITISHA</button>
+</div>
+<button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeDeposit()">Close</button>
+</div></div>
+
+<div class="modal" id="withdrawModal"><div class="modal-box">
+<h3 style="color:#00ff88;text-align:center">💸 WITHDRAW</h3>
+<p style="font-size:11px;color:#888;text-align:center;margin:10px 0">Balance: <span id="withdrawBalance">KES 0</span></p>
+<input type="number" id="withdrawAmount" class="input" placeholder="Kiasi cha kutoa KES">
+<input type="tel" id="withdrawPhone" class="input" placeholder="Namba ya kupokea 07..." value="07">
+<button style="width:100%;padding:14px;background:#00ff88;color:#000;border:none;border-radius:10px;font-weight:bold" onclick="processWithdraw()">💸 REQUEST WITHDRAW</button>
+<button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:10px" onclick="closeWithdraw()">Cancel</button>
+<p style="font-size:10px;color:#888;text-align:center;margin-top:10px">Withdrawal itatumwa kwa WhatsApp kwa admin 0706743090</p>
+</div></div>
+
+<div class="modal" id="settingsModal"><div class="modal-box">
+<h3 style="color:#00ff88;text-align:center">⚙️ SETTINGS</h3>
+<div style="font-size:13px;margin-top:15px">
+<p>🤖 Bot Name: Bondet Printer</p><br>
+<p>📊 Strategy: Auto Scalping</p><br>
+<p>💰 Min Deposit: KES 100</p><br>
+<p>💸 Min Withdraw: KES 200</p><br>
+<p>📞 Support: 0706743090</p><br>
+<button class="btn-deposit" onclick="clearData()">Clear All Data</button>
+</div>
+<button style="width:100%;padding:10px;background:#333;color:white;border:none;border-radius:8px;margin-top:15px" onclick="closeSettings()">Close</button>
+</div></div>
+
 <script>
 let balance=parseFloat(localStorage.getItem('bondet_balance')||'0');
-function updateUI(){document.getElementById('balance').innerText='$'+balance.toFixed(2);localStorage.setItem('bondet_balance',balance);}
+let transactions=JSON.parse(localStorage.getItem('bondet_tx')||'[]');
+let isRunning=false; let botInterval;
+
+function updateUI(){
+ document.getElementById('balance').innerText='KES '+balance.toFixed(0);
+ document.getElementById('dollarBalance').innerText='$'+(balance/130).toFixed(2);
+ document.getElementById('withdrawBalance').innerText='KES '+balance.toFixed(0);
+ localStorage.setItem('bondet_balance',balance);
+ renderTransactions();
+}
+function renderTransactions(){
+ let list=document.getElementById('transactionList');
+ if(transactions.length==0){list.innerHTML='<div style=color:#666>No transactions yet</div>';return;}
+ list.innerHTML=transactions.slice().reverse().map(tx=>`<div class="trade-item"><span>${tx.time} - ${tx.type}</span><span class="${tx.amount>0?'profit':'loss'}">${tx.amount>0?'+':''}${tx.amount} KES</span></div>`).join('');
+}
+function addTx(type,amount){
+ transactions.push({type,amount,time:new Date().toLocaleTimeString(),date:new Date().toLocaleDateString()});
+ localStorage.setItem('bondet_tx',JSON.stringify(transactions));
+ renderTransactions();
+}
+function switchTab(name,el){
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+ el.classList.add('active');
+ document.getElementById('tradesTab').style.display=name=='trades'?'block':'none';
+ document.getElementById('transactionsTab').style.display=name=='transactions'?'block':'none';
+ document.getElementById('settingsTab').style.display=name=='settings'?'block':'none';
+}
 function openDeposit(){document.getElementById('depositModal').classList.add('active');}
-function closeDeposit(){document.getElementById('depositModal').classList.remove('active');}
-function confirmDeposit(){let amt=parseFloat(document.getElementById('depositAmount').value);if(!amt||amt<10){alert('Weka kuanzia $10');return;}balance+=amt;updateUI();closeDeposit();alert('✅ $'+amt+' imeongezwa! Balance: $'+balance.toFixed(2));document.getElementById('depositAmount').value='';document.getElementById('tradeList').innerHTML='<div>✅ DEPOSIT +$'+amt.toFixed(2)+'</div>';}
-function runBot(){if(balance<10){alert('Deposit kwanza $10!');openDeposit();return;}document.getElementById('status').innerText='● RUNNING - PRINTING...';document.getElementById('runBtn').disabled=true;document.getElementById('stopBtn').disabled=false;alert('Bot Started! Balance $'+balance);}
-function stopBot(){document.getElementById('status').innerText='● STOPPED';document.getElementById('runBtn').disabled=false;document.getElementById('stopBtn').disabled=true;}
+function closeDeposit(){document.getElementById('depositModal').classList.remove('active');document.getElementById('verifyDeposit').style.display='none';}
+function processDeposit(){
+ let amt=parseFloat(document.getElementById('depositAmount').value);
+ if(!amt||amt<100){alert('Weka angalau KES 100');return;}
+ alert('TUMA KWA:\\n0706743090\\nKiasi: KES '+amt+'\\n\\nBaada ya kutuma weka M-Pesa CODE');
+ document.getElementById('verifyDeposit').style.display='block';
+}
+function verifyDeposit(){
+ let amt=parseFloat(document.getElementById('depositAmount').value);
+ let code=document.getElementById('mpesaCode').value;
+ if(code.length<4){alert('Weka Code');return;}
+ balance+=amt; addTx('DEPOSIT '+code,amt); updateUI(); closeDeposit();
+ alert('✅ KES '+amt+' imeongezwa!');
+ window.open('https://wa.me/254706743090?text=DEPOSIT+KES'+amt+'+Code:'+code,'_blank');
+ document.getElementById('depositAmount').value='';document.getElementById('mpesaCode').value='';
+}
+function openWithdraw(){document.getElementById('withdrawModal').classList.add('active');}
+function closeWithdraw(){document.getElementById('withdrawModal').classList.remove('active');}
+function processWithdraw(){
+ let amt=parseFloat(document.getElementById('withdrawAmount').value);
+ let phone=document.getElementById('withdrawPhone').value;
+ if(!amt||amt<200){alert('Min withdraw KES 200');return;}
+ if(amt>balance){alert('Balance haitoshi! Una KES '+balance);return;}
+ balance-=amt; addTx('WITHDRAW to '+phone,-amt); updateUI(); closeWithdraw();
+ alert('✅ Withdraw request KES '+amt+' imetumwa! Admin atakutumia kwa '+phone);
+ window.open('https://wa.me/254706743090?text=WITHDRAW+REQUEST+KES'+amt+'+TO+'+phone,'_blank');
+}
+function openSettings(){document.getElementById('settingsModal').classList.add('active');}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('active');}
+function clearData(){if(confirm('Futa data zote?')){localStorage.clear();balance=0;transactions=[];updateUI();document.getElementById('tradeList').innerHTML='Cleared';}}
+function runBot(){
+ if(balance<100){alert('Deposit kwanza KES 100!');openDeposit();return;}
+ isRunning=true;
+ document.getElementById('runBtn').disabled=true;
+ document.getElementById('stopBtn').disabled=false;
+ document.getElementById('botStatus').innerText='● RUNNING - PRINTING MONEY...';
+ document.getElementById('botStatus').style.background='#00ff8840';
+ document.getElementById('tradeList').innerHTML='';
+ let symbols=['EUR/USD','GBP/USD','BTC/USD','V75','V100','Boom 1000'];
+ botInterval=setInterval(()=>{
+  let sym=symbols[Math.floor(Math.random()*symbols.length)];
+  let profit=(Math.random()*30-8);
+  balance+=profit;
+  let isWin=profit>0;
+  let div=document.createElement('div');
+  div.className='trade-item';
+  div.innerHTML=`<span>${new Date().toLocaleTimeString()} - ${sym} ${isWin?'✅':''}</span><span class="${isWin?'profit':'loss'}">${isWin?'+':''}${profit.toFixed(2)} KES</span>`;
+  document.getElementById('tradeList').prepend(div);
+  if(document.getElementById('tradeList').children.length>15) document.getElementById('tradeList').lastChild.remove();
+  updateUI();
+ },1500);
+}
+function stopBot(){
+ isRunning=false;clearInterval(botInterval);
+ document.getElementById('runBtn').disabled=false;
+ document.getElementById('stopBtn').disabled=true;
+ document.getElementById('botStatus').innerText='● STOPPED';
+}
 updateUI();
 </script>
 </body>
-  </html>
+                      </html>
