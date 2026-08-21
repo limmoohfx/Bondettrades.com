@@ -1,19 +1,139 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>BONDET TRADES</title><style>body{background:#0a0e1a;color:#fff;font-family:Arial;margin:0}.header{background:#1a2332;padding:12px;display:flex;justify-content:space-between}.logo{color:#00ff88;font-weight:bold}.card{background:#162032;margin:12px;border-radius:12px;padding:16px}.run-btn{width:100%;background:linear-gradient(90deg,#00c853,#00e676);padding:16px;border:none;border-radius:10px;color:#fff;font-size:18px;font-weight:bold;cursor:pointer}.log{background:#000;color:#00ff88;padding:10px;font-family:monospace;height:150px;overflow:auto;border-radius:8px}</style></head><body>
-<div class="header"><div class="logo">BONDET TRADES</div><div id="balance">Not Connected</div></div>
-<div class="card"><b>Quick strategy - Bondet Dollar Printer</b><br>Market: V100 | Even/Odd | Both<br>Loss:1000 Profit:500 Stake:50</div>
-<div class="card">
-<div>Total Profit: <span id="totalProfit">$0.00</span> | Stake: <span id="currStake">$50</span></div>
-<button class="run-btn" id="connectBtn" onclick="connectDeriv()">🔗 CONNECT DERIV & START BOT</button>
-<button class="run-btn" id="stopBtn" onclick="stopBot()" style="display:none;background:#ff1744">⛔ STOP BOT</button>
-<div class="log" id="logBox">> About To Print Dollar...<br></div>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BONDET TRADES - Dollar Printer V100</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#0a0e1a;color:#fff}
+.header{background:#1a2332;padding:12px;display:flex;justify-content:space-between;align-items:center}
+.logo{color:#00ff88;font-weight:bold;font-size:20px}
+.card{background:#162032;margin:12px;border-radius:12px;padding:16px;border:1px solid #2a3a50}
+.badge{background:#1a2a4a;color:#6ea8fe;padding:4px 10px;border-radius:20px;font-size:11px;display:inline-block;margin:3px}
+.label{color:#8aa0b8;font-size:13px;margin:10px 0 5px}
+.run-btn{width:100%;background:linear-gradient(90deg,#00c853,#00e676);padding:16px;border:none;border-radius:10px;color:#fff;font-size:18px;font-weight:bold;cursor:pointer;margin-top:12px}
+.stop-btn{background:linear-gradient(90deg,#ff1744,#ff5252)!important}
+.log{background:#000;color:#00ff88;padding:10px;font-family:monospace;font-size:12px;height:180px;overflow-y:auto;border-radius:8px;margin-top:10px;border:1px solid #333}
+.stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e2f45}
+input{width:100%;padding:12px;border-radius:8px;border:none;background:#0a1a2a;color:#fff;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo">BONDET TRADES</div>
+<div id="balance" style="font-size:12px">Not Connected</div>
 </div>
+
+<div class="card">
+<div style="background:#0f2740;border-left:4px solid #00c853;padding:10px;border-radius:8px"><b>Quick strategy</b> - Bondet Dollar Printer</div>
+<div class="label">1. Market</div>
+<div><span class="badge">Derived</span> <span class="badge">Volatility 100 Index</span> <span class="badge">Digits - Even/Odd</span> <span class="badge">Contract: Both</span></div>
+<div class="label">Settings</div>
+<div style="background:#0a1a2a;padding:10px;border-radius:6px;font-size:12px;line-height:1.8">
+Loss Limit: $1000 | Target Profit: $500<br>
+Base Stake: $50 | Martingale: x2.1 | Ticks: 1
+</div>
+</div>
+
+<div class="card">
+<div class="stat"><span>Total Profit</span><span id="totalProfit" style="color:#00e676">$0.00</span></div>
+<div class="stat"><span>Current Stake</span><span id="currStake">$50</span></div>
+<div class="stat"><span>Status</span><span id="status">Idle</span></div>
+
+<input type="text" id="tokenInput" placeholder="Weka Deriv API Token hapa (app.deriv.com > API Token)">
+
+<button class="run-btn" id="connectBtn" onclick="connectWithToken()">🔗 CONNECT & START BOT</button>
+<button class="run-btn stop-btn" id="stopBtn" onclick="stopBot()" style="display:none">⛔ STOP BOT</button>
+
+<div class="log" id="logBox">> About To Print Dollar... BONDET TRADES<br>> Weka token yako juu kisha gonga CONNECT<br></div>
+
+<div style="margin-top:12px;font-size:11px;color:#8aa0b8">
+<b>Jinsi ya kupata Token:</b><br>
+1. Ingia app.deriv.com<br>
+2. Account > API Token > Create (chagua Read + Trade)<br>
+3. Copy token na paste hapa juu
+</div>
+</div>
+
 <script>
-const APP_ID=1089;let ws,token,isRunning=false,totalProfit=0,currentStake=50;
-function log(m){document.getElementById('logBox').innerHTML+=`> ${m}<br>`}
-function connectDeriv(){window.location.href=`https://oauth.deriv.com/oauth2/authorize?app_id=${APP_ID}`;}
-function init(){const p=new URLSearchParams(location.search);let t=p.get('token1');if(t){localStorage.setItem('deriv_token',t);token=t;document.getElementById('balance').innerText='Connected ✅';document.getElementById('connectBtn').innerText='▶️ RUN BOT';document.getElementById('connectBtn').onclick=startBot;history.replaceState({},'',location.pathname);}}
-function startBot(){token=localStorage.getItem('deriv_token');isRunning=true;document.getElementById('connectBtn').style.display='none';document.getElementById('stopBtn').style.display='block';ws=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${APP_ID}`);ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}));log('Authorizing...')};ws.onmessage=(e)=>{let d=JSON.parse(e.data);if(d.authorize){log('Authorized! Starting...');placeTrade();}if(d.buy){log(`Bought ${d.buy.contract_id}`);}if(d.proposal_open_contract&&d.proposal_open_contract.is_sold){let prof=parseFloat(d.proposal_open_contract.profit);totalProfit+=prof;document.getElementById('totalProfit').innerText=`$${totalProfit.toFixed(2)}`;if(prof<0){currentStake=Math.min(currentStake*2.1,500);log(`LOSS -> ${currentStake}`)}else{currentStake=50;log(`WIN $${prof}`)}if(isRunning)setTimeout(placeTrade,1000);}}; }
-function placeTrade(){let type=Math.random()>0.5?'DIGITEVEN':'DIGITODD';ws.send(JSON.stringify({buy:1,subscribe:1,parameters:{amount:currentStake,basis:'stake',contract_type:type,currency:'USD',duration:1,duration_unit:'t',symbol:'R_100'}}));log(`Placing ${type} $${currentStake}`);}
-function stopBot(){isRunning=false;if(ws)ws.close();document.getElementById('connectBtn').style.display='block';document.getElementById('stopBtn').style.display='none';log('Stopped');}
-init();
-</script></body></html>
+const APP_ID = 1089;
+let ws, token, isRunning=false, totalProfit=0, currentStake=50, baseStake=50;
+const LOSS_LIMIT=-1000, TARGET=500;
+
+function log(m){let b=document.getElementById('logBox');b.innerHTML+=`> ${m}<br>`;b.scrollTop=b.scrollHeight}
+
+function connectWithToken(){
+  let t=document.getElementById('tokenInput').value.trim() || localStorage.getItem('deriv_token');
+  if(!t || t.length<10){alert('Weka API Token sahihi kwanza! Toka app.deriv.com > API Token');return;}
+  token=t;
+  localStorage.setItem('deriv_token',t);
+  document.getElementById('balance').innerText='Connected ✅';
+  document.getElementById('status').innerText='Connecting...';
+  startBot();
+}
+
+function startBot(){
+  isRunning=true;
+  document.getElementById('connectBtn').style.display='none';
+  document.getElementById('stopBtn').style.display='block';
+  ws=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${APP_ID}`);
+  ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}));log('Authorizing token...')};
+  ws.onmessage=(e)=>{
+    let d=JSON.parse(e.data);
+    if(d.error){log(`ERROR: ${d.error.message}`);stopBot();return;}
+    if(d.authorize){
+      log(`Authorized! Account: ${d.authorize.loginid} Balance: $${d.authorize.balance}`);
+      document.getElementById('balance').innerText=`${d.authorize.loginid} $${d.authorize.balance}`;
+      document.getElementById('status').innerText='Running...';
+      placeTrade();
+    }
+    if(d.buy){log(`✅ Trade BOUGHT: ${d.buy.contract_id} Stake $${currentStake}`)}
+    if(d.proposal_open_contract){
+      let c=d.proposal_open_contract;
+      if(c.is_sold){
+        let profit=parseFloat(c.profit);
+        totalProfit+=profit;
+        document.getElementById('totalProfit').innerText=`$${totalProfit.toFixed(2)}`;
+        if(profit<0){
+          currentStake=Math.min(currentStake*2.1,500);
+          log(`❌ LOSS $${profit.toFixed(2)} -> Next stake $${currentStake.toFixed(2)}`);
+        }else{
+          currentStake=baseStake;
+          log(`💰 WIN $${profit.toFixed(2)} -> Reset to $${baseStake}`);
+        }
+        document.getElementById('currStake').innerText=`$${currentStake.toFixed(2)}`;
+        if(totalProfit<=LOSS_LIMIT){log(`🛑 Loss limit $${LOSS_LIMIT} reached! Stopping.`);stopBot();return;}
+        if(totalProfit>=TARGET){log(`🎯 Target $${TARGET} reached! Total $${totalProfit.toFixed(2)}`);stopBot();return;}
+        if(isRunning) setTimeout(placeTrade,1200);
+      }
+    }
+  };
+  ws.onerror=()=>{log('WebSocket error - check internet');stopBot();}
+}
+
+function placeTrade(){
+  if(!isRunning) return;
+  let type=Math.random()>0.5?'DIGITEVEN':'DIGITODD';
+  log(`Placing ${type} Stake $${currentStake.toFixed(2)}...`);
+  ws.send(JSON.stringify({buy:1,subscribe:1,parameters:{amount:parseFloat(currentStake.toFixed(2)),basis:'stake',contract_type:type,currency:'USD',duration:1,duration_unit:'t',symbol:'R_100'}}));
+}
+
+function stopBot(){
+  isRunning=false;
+  if(ws)ws.close();
+  document.getElementById('connectBtn').style.display='block';
+  document.getElementById('stopBtn').style.display='none';
+  document.getElementById('status').innerText='Stopped';
+  document.getElementById('connectBtn').innerText='▶️ RUN BOT AGAIN';
+  log('Bot stopped.');
+}
+
+// Auto load token if saved
+window.onload=()=>{
+  let saved=localStorage.getItem('deriv_token');
+  if(saved) document.getElementById('tokenInput').value=saved;
+}
+</script>
+</body>
+  </html>
