@@ -1,86 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BONDET TRADES - DERIV DIGIT ANALYZER 0-9</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#070707;color:#fff;font-family:Arial;text-align:center;padding:15px}
-.header{border:2px solid gold;padding:15px;border-radius:15px;margin-bottom:15px;box-shadow:0 0 20px rgba(255,215,0,0.3)}
-h1{color:gold;font-size:28px;letter-spacing:2px}
-h2{color:#fff;font-size:14px;margin-top:5px;opacity:0.8}
-#prediction{background:#111;border:1px solid #00ff88;padding:12px;border-radius:10px;color:#00ff88;font-weight:bold;font-size:16px;margin:15px 0}
-#digits{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:20px 0}
-.digit-box{width:100px;background:#1a1a1a;border:2px solid #333;border-radius:12px;padding:10px}
-.digit-box.hot{border-color:gold;box-shadow:0 0 15px gold}
-.num{font-size:28px;font-weight:bold}
-.perc{font-size:20px;color:gold;font-weight:bold;margin:5px 0}
-.bar{height:6px;background:#333;border-radius:10px;overflow:hidden}
-.bar-fill{height:100%;background:gold;transition:width 0.3s}
-.last-box{margin-top:20px;padding:15px;background:#111;border-radius:15px;border:1px solid #333}
-#last{font-size:60px;color:gold;font-weight:bold;text-shadow:0 0 20px gold}
-</style>
-</head>
-<body>
-
-<div class="header">
-<h1>BONDET TRADES</h1>
-<h2>DERIV ANALYSIS TOOL - DIGITS 0-9 LIVE</h2>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>BONDET TRADES</title><style>body{background:#0a0e1a;color:#fff;font-family:Arial;margin:0}.header{background:#1a2332;padding:12px;display:flex;justify-content:space-between}.logo{color:#00ff88;font-weight:bold}.card{background:#162032;margin:12px;border-radius:12px;padding:16px}.run-btn{width:100%;background:linear-gradient(90deg,#00c853,#00e676);padding:16px;border:none;border-radius:10px;color:#fff;font-size:18px;font-weight:bold;cursor:pointer}.log{background:#000;color:#00ff88;padding:10px;font-family:monospace;height:150px;overflow:auto;border-radius:8px}</style></head><body>
+<div class="header"><div class="logo">BONDET TRADES</div><div id="balance">Not Connected</div></div>
+<div class="card"><b>Quick strategy - Bondet Dollar Printer</b><br>Market: V100 | Even/Odd | Both<br>Loss:1000 Profit:500 Stake:50</div>
+<div class="card">
+<div>Total Profit: <span id="totalProfit">$0.00</span> | Stake: <span id="currStake">$50</span></div>
+<button class="run-btn" id="connectBtn" onclick="connectDeriv()">🔗 CONNECT DERIV & START BOT</button>
+<button class="run-btn" id="stopBtn" onclick="stopBot()" style="display:none;background:#ff1744">⛔ STOP BOT</button>
+<div class="log" id="logBox">> About To Print Dollar...<br></div>
 </div>
-
-<div id="prediction">Loading Live 0-9...</div>
-
-<div id="digits"></div>
-
-<div class="last-box">
-<div>Last Tick Digit</div>
-<div id="last">-</div>
-<div id="status" style="font-size:12px;color:#888;margin-top:10px">Ticks: 0/100</div>
-</div>
-
 <script>
-let history = [];
-function addDigit(d){
-  history.push(d);
-  if(history.length > 100) history.shift();
-  render();
-}
-function render(){
-  let counts = Array(10).fill(0);
-  history.forEach(x => counts[x]++);
-  let max = Math.max(...counts);
-  let html = '';
-  for(let i=0;i<10;i++){
-    let perc = history.length? (counts[i]/history.length*100).toFixed(1) : 0;
-    let isHot = counts[i]==max && history.length>5;
-    html += `<div class="digit-box ${isHot?'hot':''}"><div class="num">${i}</div><div class="perc">${perc}%</div><div class="bar"><div class="bar-fill" style="width:${perc}%"></div></div><small>${counts[i]}x</small></div>`;
-  }
-  document.getElementById('digits').innerHTML = html;
-  if(history.length){
-    document.getElementById('last').innerText = history[history.length-1];
-    let over = counts.slice(5).reduce((a,b)=>a+b,0);
-    let even = counts.filter((c,i)=>i%2==0).reduce((a,b)=>a+b,0);
-    let hot = counts.indexOf(max);
-    document.getElementById('prediction').innerHTML = `🔥 HOT: ${hot} | OVER 4: ${(over/history.length*100).toFixed(1)}% | EVEN: ${(even/history.length*100).toFixed(1)}%`;
-    document.getElementById('status').innerText = `Market: R_100 | Ticks: ${history.length}/100 | Live`;
-  }
-}
-// Real Deriv + Auto Demo Fallback
-let ws;
-try{
-  ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
-  ws.onopen = ()=>{ ws.send(JSON.stringify({ticks:"R_100",subscribe:1})); document.getElementById('status').innerText="Connected to Deriv"; };
-  ws.onmessage = (e)=>{
-    let data = JSON.parse(e.data);
-    if(data.tick){
-      let price = data.tick.quote.toString();
-      let digit = parseInt(price.slice(-1));
-      if(!isNaN(digit)) addDigit(digit);
-    }
-  };
-}catch(err){}
-setInterval(()=>{ if(!ws || ws.readyState!==1){ addDigit(Math.floor(Math.random()*10)); } },500);
-</script>
-</body>
-</html>
+const APP_ID=1089;let ws,token,isRunning=false,totalProfit=0,currentStake=50;
+function log(m){document.getElementById('logBox').innerHTML+=`> ${m}<br>`}
+function connectDeriv(){window.location.href=`https://oauth.deriv.com/oauth2/authorize?app_id=${APP_ID}`;}
+function init(){const p=new URLSearchParams(location.search);let t=p.get('token1');if(t){localStorage.setItem('deriv_token',t);token=t;document.getElementById('balance').innerText='Connected ✅';document.getElementById('connectBtn').innerText='▶️ RUN BOT';document.getElementById('connectBtn').onclick=startBot;history.replaceState({},'',location.pathname);}}
+function startBot(){token=localStorage.getItem('deriv_token');isRunning=true;document.getElementById('connectBtn').style.display='none';document.getElementById('stopBtn').style.display='block';ws=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${APP_ID}`);ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}));log('Authorizing...')};ws.onmessage=(e)=>{let d=JSON.parse(e.data);if(d.authorize){log('Authorized! Starting...');placeTrade();}if(d.buy){log(`Bought ${d.buy.contract_id}`);}if(d.proposal_open_contract&&d.proposal_open_contract.is_sold){let prof=parseFloat(d.proposal_open_contract.profit);totalProfit+=prof;document.getElementById('totalProfit').innerText=`$${totalProfit.toFixed(2)}`;if(prof<0){currentStake=Math.min(currentStake*2.1,500);log(`LOSS -> ${currentStake}`)}else{currentStake=50;log(`WIN $${prof}`)}if(isRunning)setTimeout(placeTrade,1000);}}; }
+function placeTrade(){let type=Math.random()>0.5?'DIGITEVEN':'DIGITODD';ws.send(JSON.stringify({buy:1,subscribe:1,parameters:{amount:currentStake,basis:'stake',contract_type:type,currency:'USD',duration:1,duration_unit:'t',symbol:'R_100'}}));log(`Placing ${type} $${currentStake}`);}
+function stopBot(){isRunning=false;if(ws)ws.close();document.getElementById('connectBtn').style.display='block';document.getElementById('stopBtn').style.display='none';log('Stopped');}
+init();
+</script></body></html>
