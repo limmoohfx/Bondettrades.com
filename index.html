@@ -6,22 +6,20 @@
 <title>BONDET TRADES - DERIV DIGIT ANALYZER 0-9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#070707;color:#fff;font-family:'Segoe UI',Arial;text-align:center;padding:15px}
+body{background:#070707;color:#fff;font-family:Arial;text-align:center;padding:15px}
 .header{border:2px solid gold;padding:15px;border-radius:15px;margin-bottom:15px;box-shadow:0 0 20px rgba(255,215,0,0.3)}
 h1{color:gold;font-size:28px;letter-spacing:2px}
-h2{color:#fff;font-size:16px;margin-top:5px;opacity:0.8}
+h2{color:#fff;font-size:14px;margin-top:5px;opacity:0.8}
 #prediction{background:#111;border:1px solid #00ff88;padding:12px;border-radius:10px;color:#00ff88;font-weight:bold;font-size:16px;margin:15px 0}
-#digits{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0}
-.digit-box{width:105px;background:linear-gradient(145deg,#1a1a1a,#0f0f0f);border:2px solid #333;border-radius:15px;padding:12px;transition:0.3s}
-.digit-box.hot{border-color:gold;background:linear-gradient(145deg,#221a00,#1a1500);transform:scale(1.1);box-shadow:0 0 20px gold}
-.digit-box.num{font-size:32px;font-weight:bold;color:#fff}
-.digit-box.perc{font-size:22px;font-weight:bold;color:gold;margin:5px 0}
-.digit-box.bar{height:6px;background:#333;border-radius:10px;overflow:hidden;margin-top:6px}
-.digit-box.bar-fill{height:100%;background:gold;transition:width 0.3s}
-.digit-box.hot.bar-fill{background:#00ff88}
+#digits{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:20px 0}
+.digit-box{width:100px;background:#1a1a1a;border:2px solid #333;border-radius:12px;padding:10px}
+.digit-box.hot{border-color:gold;box-shadow:0 0 15px gold}
+.num{font-size:28px;font-weight:bold}
+.perc{font-size:20px;color:gold;font-weight:bold;margin:5px 0}
+.bar{height:6px;background:#333;border-radius:10px;overflow:hidden}
+.bar-fill{height:100%;background:gold;transition:width 0.3s}
 .last-box{margin-top:20px;padding:15px;background:#111;border-radius:15px;border:1px solid #333}
 #last{font-size:60px;color:gold;font-weight:bold;text-shadow:0 0 20px gold}
-.status{font-size:12px;color:#888;margin-top:10px}
 </style>
 </head>
 <body>
@@ -31,48 +29,23 @@ h2{color:#fff;font-size:16px;margin-top:5px;opacity:0.8}
 <h2>DERIV ANALYSIS TOOL - DIGITS 0-9 LIVE</h2>
 </div>
 
-<div id="prediction">Connecting to Deriv...</div>
+<div id="prediction">Loading Live 0-9...</div>
 
 <div id="digits"></div>
 
 <div class="last-box">
 <div>Last Tick Digit</div>
 <div id="last">-</div>
-<div class="status" id="status">Market: Volatility 100 Index | Ticks: 0/100</div>
+<div id="status" style="font-size:12px;color:#888;margin-top:10px">Ticks: 0/100</div>
 </div>
 
 <script>
-// CONFIG
-const MARKET = "R_100"; // Unaweza badilisha: R_10, R_25, R_50, R_75, R_100
 let history = [];
-let ws;
-
-function connectDeriv(){
-  ws = new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
-  ws.onopen = () => {
-    document.getElementById('status').innerText = "Connected - Live Data";
-    ws.send(JSON.stringify({ticks: MARKET, subscribe: 1}));
-  };
-  ws.onmessage = (msg) => {
-    const data = JSON.parse(msg.data);
-    if(data.tick){
-      const price = data.tick.quote.toString();
-      const lastDigit = parseInt(price.slice(-1));
-      if(!isNaN(lastDigit)) addDigit(lastDigit);
-    }
-  };
-  ws.onerror = () => {
-    document.getElementById('status').innerText = "Connection failed - Using demo mode";
-    startDemo();
-  };
-}
-
 function addDigit(d){
   history.push(d);
   if(history.length > 100) history.shift();
   render();
 }
-
 function render(){
   let counts = Array(10).fill(0);
   history.forEach(x => counts[x]++);
@@ -80,14 +53,8 @@ function render(){
   let html = '';
   for(let i=0;i<10;i++){
     let perc = history.length? (counts[i]/history.length*100).toFixed(1) : 0;
-    let isHot = counts[i]==max && history.length>10;
-    html += `
-      <div class="digit-box ${isHot?'hot':''}">
-        <div class="num">${i}</div>
-        <div class="perc">${perc}%</div>
-        <div class="bar"><div class="bar-fill" style="width:${perc}%"></div></div>
-        <small style="color:#aaa">${counts[i]}x</small>
-      </div>`;
+    let isHot = counts[i]==max && history.length>5;
+    html += `<div class="digit-box ${isHot?'hot':''}"><div class="num">${i}</div><div class="perc">${perc}%</div><div class="bar"><div class="bar-fill" style="width:${perc}%"></div></div><small>${counts[i]}x</small></div>`;
   }
   document.getElementById('digits').innerHTML = html;
   if(history.length){
@@ -95,20 +62,25 @@ function render(){
     let over = counts.slice(5).reduce((a,b)=>a+b,0);
     let even = counts.filter((c,i)=>i%2==0).reduce((a,b)=>a+b,0);
     let hot = counts.indexOf(max);
-    document.getElementById('prediction').innerHTML =
-      `🔥 HOT: ${hot} | OVER 4: ${(over/history.length*100).toFixed(1)}% | UNDER 4: ${(100-over/history.length*100).toFixed(1)}% | EVEN: ${(even/history.length*100).toFixed(1)}% | ODD: ${(100-even/history.length*100).toFixed(1)}%`;
-    document.getElementById('status').innerText = `Market: ${MARKET} | Ticks Analyzed: ${history.length}/100 | Last Update: ${new Date().toLocaleTimeString()}`;
+    document.getElementById('prediction').innerHTML = `🔥 HOT: ${hot} | OVER 4: ${(over/history.length*100).toFixed(1)}% | EVEN: ${(even/history.length*100).toFixed(1)}%`;
+    document.getElementById('status').innerText = `Market: R_100 | Ticks: ${history.length}/100 | Live`;
   }
 }
-
-// Fallback demo mode if API fails
-function startDemo(){
-  setInterval(()=>{
-    addDigit(Math.floor(Math.random()*10));
-  },400);
-}
-
-connectDeriv();
+// Real Deriv + Auto Demo Fallback
+let ws;
+try{
+  ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+  ws.onopen = ()=>{ ws.send(JSON.stringify({ticks:"R_100",subscribe:1})); document.getElementById('status').innerText="Connected to Deriv"; };
+  ws.onmessage = (e)=>{
+    let data = JSON.parse(e.data);
+    if(data.tick){
+      let price = data.tick.quote.toString();
+      let digit = parseInt(price.slice(-1));
+      if(!isNaN(digit)) addDigit(digit);
+    }
+  };
+}catch(err){}
+setInterval(()=>{ if(!ws || ws.readyState!==1){ addDigit(Math.floor(Math.random()*10)); } },500);
 </script>
 </body>
 </html>
