@@ -1,73 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BONDET TRADES - TARGET PROFIT EDITION</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
-body{background:#0e0e14;color:#fff}
-.header{padding:10px;background:#15151f;display:flex;justify-content:space-between;align-items:center}
-.badge{background:#1d1d2d;padding:4px 8px;border-radius:6px;font-size:11px}
-.price-big{font-size:28px;text-align:center;font-weight:800;margin:6px 0}
-.chart-wrap{height:35vh;position:relative;border-bottom:1px solid #222}
-canvas{width:100%;height:100%}
-.price-tag{position:absolute;right:8px;background:#fff;color:#000;padding:2px 6px;border-radius:4px;font-size:12px}
-.controls{padding:10px;background:#15151f;padding-bottom:90px}
-.row{display:flex;gap:8px;margin-bottom:10px}
-.btn{flex:1;padding:11px;border-radius:10px;border:1px solid #333;background:#2a2a3d;color:#aaa;font-weight:700}
-.btn.active{background:#00ff8822;color:#00ff88;border-color:#00ff88}
-.input-box{flex:1;background:#1d1d2d;border:1px solid #333;border-radius:10px;padding:8px}
-.buy{width:100%;background:#00d084;color:#000;padding:14px;border-radius:12px;border:none;font-weight:800;font-size:14px}
-.auto-bar{background:#1a1a2a;border:1px solid #00ff8844;border-radius:12px;padding:10px;margin-bottom:10px}
-.switch{width:44px;height:24px;background:#333;border-radius:20px;position:relative;cursor:pointer}
-.switch.on{background:#00ff88}
-.knob{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:.2s}
-.switch.on.knob{left:23px}
-.target-bar{background:#1d1d2d;border:1px solid #333;border-radius:10px;padding:10px;margin-bottom:10px;display:flex;gap:10px}
-.progress{height:6px;background:#222;border-radius:10px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;background:#00ff88;transition:.5s;width:0%}
-.win{color:#00ff88}.loss{color:#ff5a5a}
-</style>
-</head>
-<body>
-<div class="header"><div style="color:#00ff88;font-weight:900">BONDET TRADES 🎯</div><div style="display:flex;gap:6px"><div class="badge">V100 (1s)</div><div class="badge" style="color:#00ff88">0799365415</div></div></div>
-<div style="text-align:center;padding:4px;background:#111;font-size:11px;color:#aaa">TARGET PROFIT $20 | STOP LOSS $10 | SOUND 🔊📳</div>
-<div class="price-big" id="bigPrice">669.93</div>
-<div class="chart-wrap"><canvas id="chart"></canvas><div class="price-tag" id="priceTag">669.93</div></div>
-<div class="controls">
-<div class="target-bar">
-<div style="flex:1"><small style="color:#888">TARGET 🎯 <span id="targetPct">0%</span></small><div style="margin-top:4px"><input id="targetInput" type="number" value="20" oninput="updateTarget()" style="background:#111;border:1px solid #333;color:#00ff88;padding:4px;border-radius:6px;width:65px"> $</div><div class="progress"><div class="progress-fill" id="targetBar"></div></div><div style="font-size:10px;color:#888"><span id="todayDisplay">+$0.00</span> / $<span id="targetDisplay">20</span></div></div>
-<div style="flex:1"><small style="color:#888">STOP LOSS 🛑</small><div style="margin-top:4px"><input id="stopInput" type="number" value="10" oninput="updateTarget()" style="background:#111;border:1px solid #333;color:#ff5a5a;padding:4px;border-radius:6px;width:65px"> $</div><div class="progress"><div class="progress-fill" id="stopBar" style="background:#ff5a5a"></div></div><div style="font-size:10px">Limit $<span id="stopDisplay">10</span></div></div>
-</div>
-<div class="auto-bar"><div style="display:flex;justify-content:space-between"><div><b style="color:#00ff88">🤖 AUTO BOT</b><br><small style="color:#888" id="autoStatus">OFF - Target $20</small></div><div style="display:flex;gap:8px;align-items:center"><span id="autoStateTxt">OFF</span><div class="switch" id="autoSwitch" onclick="toggleAuto()"><div class="knob"></div></div></div></div><div style="display:flex;gap:8px;margin-top:8px"><div class="input-box"><small style="color:#888;font-size:10px">Strategy</small><select id="strat" style="background:transparent;color:#fff;border:none;width:100%"><option>Even Only</option><option>Odd Only</option><option>Alternate</option><option>Follow Last</option></select></div><div class="input-box"><small style="color:#888;font-size:10px">Auto</small><b id="autoCount">0</b></div></div></div>
-<div class="row"><button class="btn active" id="evenBtn" onclick="selectType('even')">Even</button><button class="btn" id="oddBtn" onclick="selectType('odd')">Odd</button></div>
-<div class="row"><div class="input-box" onclick="changeDur()"><small style="color:#888;font-size:10px">Duration</small><b id="durTxt">2 ticks</b></div><div class="input-box" onclick="changeStake()"><small style="color:#888;font-size:10px">Stake</small><b id="stakeTxt">2 USD</b></div><div class="input-box"><small style="color:#888;font-size:10px">Martingale</small><select id="mart" style="background:transparent;color:#fff;border:none;width:100%"><option>OFF</option><option>ON x2</option><option>ON x2.5</option></select></div></div>
-<div style="font-size:11px;color:#888;display:flex;justify-content:space-between"><div>Bal: <b id="bal" style="color:#fff">$118</b> Today: <b id="today" class="win">+$0.00</b></div><div>Last: <b id="lastDigit">3</b> <span id="lastType">ODD</span></div></div>
-<button class="buy" id="buyBtn" onclick="placeTrade()">Buy Even/Odd 🔊🎯<br><small>Payout <span id="payoutTxt">3.93</span> USD • Target $20</small></button>
-<div style="font-size:10px;color:#888;display:flex;justify-content:space-between;margin-top:6px"><span>W:<b id="wins">0</b> L:<b id="loss">0</b> WR:<b id="wr">0%</b></span><span id="targetMsg" style="color:#00ff88">🎯 $20 to go</span></div>
-<div id="tradeLog" style="font-size:11px;max-height:110px;overflow:auto;margin-top:8px"></div>
-<div style="display:flex;gap:8px;margin-top:10px"><button style="flex:1;padding:9px;background:#1d1d2d;border:1px solid #333;border-radius:8px;color:#00ff88" onclick="alert('M-PESA 0799365415')">DEPOSIT 0799365415</button><button style="flex:1;padding:9px;background:#1d1d2d;border:1px solid #ff5a5a44;border-radius:8px;color:#ff5a5a" onclick="resetTarget()">RESET</button></div>
+<div id="bondet-analyzer" style="background:#0a0a0a;padding:20px;text-align:center">
+  <h2 style="color:gold">BONDET DERIV ANALYZER - LIVE 0-9</h2>
+  <p id="prediction" style="color:#00ff88;font-weight:bold"></p>
+  <div id="digits"></div>
+  <p>Last: <span id="last" style="font-size:30px;color:gold"></span></p>
 </div>
 <script>
-// COPY REST OF SCRIPT FROM PREVIOUS FULL FILE - SAME AS BEFORE
-let price=669.93,points=[],selected='even',stake=2,duration=2,balance=118,today=0,winCount=0,lossCount=0,autoOn=false,autoCount=0,martStake=2,targetProfit=20,stopLoss=10;
-for(let i=0;i<120;i++) points.push(price+(Math.random()-0.5)*0.6);
-let canvas=document.getElementById('chart'),ctx=canvas.getContext('2d');
-function resize(){canvas.width=canvas.offsetWidth*2;canvas.height=canvas.offsetHeight*2;ctx.setTransform(2,0,0,2,0,0);}resize();
-function draw(){let w=canvas.offsetWidth,h=canvas.offsetHeight;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#1a1a2a';for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(0,h/4*i);ctx.lineTo(w,h/4*i);ctx.stroke();}let min=Math.min(...points),max=Math.max(...points),range=max-min||1;ctx.beginPath();ctx.strokeStyle='#d0d5dd';ctx.lineWidth=1.2;for(let i=0;i<points.length;i++){let x=(i/(points.length-1))*w;let y=h-((points[i]-min)/range)*h*0.8-h*0.1;if(i==0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();let lastY=h-((points[points.length-1]-min)/range)*h*0.8-h*0.1;ctx.beginPath();ctx.arc(w-2,lastY,4,0,6.28);ctx.fillStyle='#fff';ctx.fill();document.getElementById('priceTag').style.top=lastY+'px';requestAnimationFrame(draw);}draw();
-setInterval(()=>{let c=(Math.random()-0.48)*0.6;if(Math.random()<0.08)c=(Math.random()-0.5)*2.2;price+=c;points.push(price);if(points.length>120)points.shift();document.getElementById('bigPrice').innerText=price.toFixed(2);document.getElementById('priceTag').innerText=price.toFixed(2);let d=Math.abs(Math.floor(price*100)%10);document.getElementById('lastDigit').innerText=d;document.getElementById('lastType').innerText=d%2==0?'EVEN':'ODD';},1000);
-function selectType(t){selected=t;document.getElementById('evenBtn').classList.toggle('active',t=='even');document.getElementById('oddBtn').classList.toggle('active',t=='odd');}
-function changeStake(){let s=prompt('Stake USD:',stake);if(s){stake=parseFloat(s);martStake=stake;document.getElementById('stakeTxt').innerText=stake+' USD';document.getElementById('payoutTxt').innerText=(stake*1.965).toFixed(2);}}
-function changeDur(){let d=prompt('Duration ticks:',duration);if(d){duration=parseInt(d);document.getElementById('durTxt').innerText=duration+' ticks';}}
-function updateTarget(){targetProfit=parseFloat(document.getElementById('targetInput').value)||20;stopLoss=parseFloat(document.getElementById('stopInput').value)||10;document.getElementById('targetDisplay').innerText=targetProfit;document.getElementById('stopDisplay').innerText=stopLoss;checkTarget();}
-function checkTarget(){let pct=Math.min(100,(today/targetProfit)*100);document.getElementById('targetBar').style.width=Math.max(0,pct)+'%';document.getElementById('targetPct').innerText=Math.round(pct)+'%';document.getElementById('todayDisplay').innerText=(today>=0?'+$':'-$')+Math.abs(today).toFixed(2);let stopPct=Math.min(100,(Math.abs(Math.min(0,today))/stopLoss)*100);document.getElementById('stopBar').style.width=stopPct+'%';let rem=targetProfit-today;document.getElementById('targetMsg').innerText=rem>0?'🎯 $'+rem.toFixed(2)+' to go':'✅ TARGET HIT!';if(today>=targetProfit&&autoOn){autoOn=false;document.getElementById('autoSwitch').classList.remove('on');document.getElementById('autoStateTxt').innerText='OFF';document.getElementById('autoStatus').innerText='✅ TARGET REACHED!';document.getElementById('buyBtn').disabled=false;playSound(true);alert('🎯 TARGET $'+targetProfit+' REACHED! Profit $'+today.toFixed(2)+' to M-PESA 0799365415');}if(today<=-stopLoss&&autoOn){autoOn=false;document.getElementById('autoSwitch').classList.remove('on');alert('🛑 STOP LOSS $'+stopLoss+' HIT! Bot stopped');}}
-function toggleAuto(){if(today>=targetProfit){alert('Reset first');return;}autoOn=!autoOn;document.getElementById('autoSwitch').classList.toggle('on',autoOn);document.getElementById('autoStateTxt').innerText=autoOn?'ON':'OFF';document.getElementById('autoStatus').innerText=autoOn?'🟢 RUNNING to $'+targetProfit:'OFF';document.getElementById('buyBtn').disabled=autoOn;if(autoOn)startAuto();}
-function startAuto(){if(!autoOn)return;if(today>=targetProfit||today<=-stopLoss){checkTarget();return;}let strat=document.getElementById('strat').value;if(strat=='Even Only')selected='even';else if(strat=='Odd Only')selected='odd';else if(strat=='Alternate')selected=selected=='even'?'odd':'even';else if(strat=='Follow Last'){let d=parseInt(document.getElementById('lastDigit').innerText);selected=d%2==0?'even':'odd';}placeTrade(true);setTimeout(()=>{if(autoOn)startAuto();},(duration*1000)+1000);}
-function playSound(win){try{let ctxA=new(window.AudioContext||window.webkitAudioContext)();let o=ctxA.createOscillator(),g=ctxA.createGain();o.connect(g);g.connect(ctxA.destination);o.frequency.value=win?880:220;g.gain.value=0.3;o.start();setTimeout(()=>{o.frequency.value=win?1320:180;},120);setTimeout(()=>{o.stop();},350);if(navigator.vibrate)navigator.vibrate(win?200:[100,50,100]);}catch(e){}}
-function placeTrade(isAuto=false){let entry=price;let btn=document.getElementById('buyBtn');if(!isAuto)btn.innerHTML='Running...';let cur=isAuto?martStake:stake;let ticks=0;let iv=setInterval(()=>{ticks++;if(ticks>=duration){clearInterval(iv);let exit=price,exitDigit=Math.abs(Math.floor(exit*100)%10);let win=(selected=='even'&&exitDigit%2==0)||(selected=='odd'&&exitDigit%2==1);let profit=win?cur*0.965:-cur;balance+=profit;today+=profit;if(win)winCount++;else lossCount++;if(isAuto){autoCount++;document.getElementById('autoCount').innerText=autoCount;}let martOpt=document.getElementById('mart').value;if(martOpt!='OFF'){let mult=martOpt=='ON x2'?2:2.5;if(win)martStake=stake;else martStake=cur*mult;if(martStake>50)martStake=stake;}else martStake=stake;document.getElementById('bal').innerText='$'+balance.toFixed(2);document.getElementById('today').innerText=(today>=0?'+$':'-$')+Math.abs(today).toFixed(2);document.getElementById('wins').innerText=winCount;document.getElementById('loss').innerText=lossCount;let total=winCount+lossCount;document.getElementById('wr').innerText=total?Math.round(winCount/total*100)+'%':'0%';let log=document.getElementById('tradeLog');let tag=isAuto?'🤖 AUTO':'👤 MAN';log.innerHTML='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #222"><span>'+tag+' '+selected.toUpperCase()+' '+entry.toFixed(2)+'->'+exit.toFixed(2)+' ['+exitDigit+'] '+(win?'✅':'❌')+'</span><span class="'+(win?'win':'loss')+'">'+(win?'+':'')+profit.toFixed(2)+'</span></div>'+log.innerHTML;playSound(win);checkTarget();if(!isAuto){btn.innerHTML=win?'WIN +'+profit.toFixed(2)+' ✅':'LOSS '+profit.toFixed(2)+' ❌';setTimeout(()=>{btn.innerHTML='Buy 🔊🎯 Payout '+(stake*1.965).toFixed(2)+' • Target $'+targetProfit;},1500);}}},1000);}
-function resetTarget(){today=0;winCount=0;lossCount=0;autoCount=0;document.getElementById('wins').innerText='0';document.getElementById('loss').innerText='0';document.getElementById('wr').innerText='0%';document.getElementById('today').innerText='+$0.00';document.getElementById('tradeLog').innerHTML='';checkTarget();}
-updateTarget();
-</script>
-</body>
-                                                                                               </html>
+let history=[];function genTick(){return Math.floor(Math.random()*10)}
+function update(){
+ let d=genTick();history.push(d);if(history.length>100)history.shift();
+ let counts=Array(10).fill(0);history.forEach(x=>counts[x]++);
+ let html='',max=Math.max(...counts);
+ for(let i=0;i<10;i++){
+  let perc=(counts[i]/history.length*100).toFixed(1);
+  html+=`<div style="display:inline-block;width:80px;margin:5px;padding:10px;background:#1a1a1a;border:2px solid gold;border-radius:10px;${counts[i]==max?'background:#00ff88;color:#000':''}"><b>${i}</b><div style="font-size:20px;color:gold;font-weight:bold">${perc}%</div></div>`;
+ }
+ document.getElementById('digits').innerHTML=html;
+ document.getElementById('last').innerText=d;
+ let over=counts.slice(5).reduce((a,b)=>a+b,0);
+ document.getElementById('prediction').innerText=`HOT: ${counts.indexOf(max)} | OVER 4: ${(over/history.length*100).toFixed(1)}%`;
+}
+setInterval(update,300);update();
+   </script>
